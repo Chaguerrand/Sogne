@@ -171,7 +171,97 @@
 
   // ---------- Overlays ----------
   const layer = $('#layer');
-  function closeLayer() { layer.innerHTML = ''; document.body.style.overflow = ''; }
+  // ---------- Effets de déchirement à la fermeture d'une carte ----------
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const sgn = () => (Math.random() < 0.5 ? -1 : 1);
+  function jag(a, b, n, amp) {
+    n = n || 12; amp = amp === undefined ? 2.4 : amp;
+    const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    const pts = [a];
+    for (let i = 1; i < n; i++) { const t = i / n, o = (Math.random() - 0.5) * 2 * amp; pts.push([a[0] + dx * t + nx * o, a[1] + dy * t + ny * o]); }
+    pts.push(b); return pts;
+  }
+  const rev = (l) => l.slice().reverse();
+  // Chaque effet renvoie des morceaux : poly (en %), x/y/r = destination, o = origine de rotation, d = délai (ms), t = durée (ms)
+  const TEARS = [
+    function horizontal(w, h, V) { const y = rnd(38, 62), L = jag([0, y], [100, y]); return [
+      { poly: [[0, 0], [100, 0], ...rev(L)], x: -w * 0.5 * sgn(), y: -V, r: rnd(18, 35) * sgn(), o: '100% 100%' },
+      { poly: [...L, [100, 100], [0, 100]], x: w * 0.5 * sgn(), y: V, r: rnd(18, 35) * sgn(), o: '0% 0%' }]; },
+    function vertical(w, h, V) { const x = rnd(38, 62), L = jag([x, 0], [x, 100]); return [
+      { poly: [[0, 0], ...L, [0, 100]], x: -V, y: h * 0.3, r: -rnd(20, 40), o: '100% 100%' },
+      { poly: [...L, [100, 100], [100, 0]], x: V, y: h * 0.4, r: rnd(20, 40), o: '0% 100%' }]; },
+    function diagonal(w, h, V) { const f = sgn(), y1 = rnd(8, 28), y2 = rnd(72, 92), L = jag(f > 0 ? [0, y1] : [0, y2], f > 0 ? [100, y2] : [100, y1], 14); return [
+      { poly: [[0, 0], [100, 0], ...rev(L)], x: V * 0.7 * f, y: -V, r: 30 * f, o: '50% 100%' },
+      { poly: [...L, [100, 100], [0, 100]], x: -V * 0.7 * f, y: V, r: -30 * f, o: '50% 0%' }]; },
+    function corner(w, h, V) {
+      const fx = sgn() > 0, fy = sgn() > 0, a = rnd(32, 52), b = rnd(32, 52), L = jag([b, 0], [0, a], 9, 2.2);
+      const m = (p) => p.map(([x, y]) => [fx ? 100 - x : x, fy ? 100 - y : y]);
+      const sx = fx ? 1 : -1, sy = fy ? 1 : -1;
+      return [{ poly: m([[0, 0], ...L]), x: V * 0.6 * sx, y: -V * 0.7 * sy, r: 40 * sx * sy, o: '0% 0%', t: 800 },
+              { poly: m([...L, [0, 100], [100, 100], [100, 0]]), x: -w * 0.15 * sx, y: V * 1.1, r: -8 * sx * sy, o: '50% 0%', d: 140, t: 950 }]; },
+    function strip(w, h, V) { const y = rnd(11, 20), L = jag([0, y], [100, y], 16, 1.6); return [
+      { poly: [[0, 0], [100, 0], ...rev(L)], x: -w * 0.3, y: -V, r: -rnd(40, 70), o: '100% 50%', t: 700 },
+      { poly: [...L, [100, 100], [0, 100]], x: w * 0.1 * sgn(), y: V, r: rnd(3, 8) * sgn(), o: '50% 0%', d: 120, t: 900 }]; },
+    function stripsV(w, h, V) {
+      const n = 6, xs = [0]; for (let i = 1; i < n; i++) xs.push((100 / n) * i + rnd(-3, 3)); xs.push(100);
+      const lines = xs.map((x, i) => (i === 0 ? [[0, 0], [0, 100]] : i === n ? [[100, 0], [100, 100]] : jag([x, 0], [x, 100], 10, 1.6)));
+      return xs.slice(0, n).map((_, i) => ({ poly: [...lines[i], ...rev(lines[i + 1])], x: rnd(-w * 0.3, w * 0.3), y: V, r: rnd(-20, 20), o: '50% 0%', d: i * 70, t: 800 })); },
+    function stripsH(w, h, V) {
+      const n = 7, ys = [0]; for (let i = 1; i < n; i++) ys.push((100 / n) * i + rnd(-3, 3)); ys.push(100);
+      const lines = ys.map((y, i) => (i === 0 ? [[0, 0], [100, 0]] : i === n ? [[0, 100], [100, 100]] : jag([0, y], [100, y], 12, 1.6)));
+      return ys.slice(0, n).map((_, i) => ({ poly: [...lines[i], ...rev(lines[i + 1])], x: (i % 2 ? 1 : -1) * V, y: rnd(-20, 40), r: (i % 2 ? 1 : -1) * rnd(4, 14), o: '50% 50%', d: i * 55, t: 700 })); },
+    function shred(w, h, V) {
+      const C = 3, R = 4, g = [];
+      for (let j = 0; j <= R; j++) { g.push([]); for (let i = 0; i <= C; i++) g[j].push([(100 / C) * i + (i && i < C ? rnd(-5, 5) : 0), (100 / R) * j + (j && j < R ? rnd(-4, 4) : 0)]); }
+      const out = [];
+      for (let j = 0; j < R; j++) for (let i = 0; i < C; i++) {
+        const cx = (i + 0.5) / C - 0.5, cy = (j + 0.5) / R - 0.5, k = V * 1.1;
+        out.push({ poly: [g[j][i], g[j][i + 1], g[j + 1][i + 1], g[j + 1][i]], x: cx * k * 1.6 + rnd(-30, 30), y: cy * k * 1.6 + V * 0.35, r: rnd(-120, 120), o: '50% 50%', d: rnd(0, 120), t: 800 });
+      }
+      return out; },
+    function cross(w, h, V) {
+      const cx = rnd(40, 60), cy = rnd(42, 58), Lhl = jag([0, cy], [cx, cy], 8), Lhr = jag([cx, cy], [100, cy], 8), Lvt = jag([cx, 0], [cx, cy], 8), Lvb = jag([cx, cy], [cx, 100], 8);
+      return [
+        { poly: [[0, 0], [cx, 0], ...Lvt, ...rev(Lhl)], x: -V * 0.6, y: -V * 0.7, r: -rnd(25, 50), o: '100% 100%' },
+        { poly: [[cx, 0], [100, 0], [100, cy], ...rev(Lhr), ...rev(Lvt)], x: V * 0.6, y: -V * 0.7, r: rnd(25, 50), o: '0% 100%' },
+        { poly: [...Lhl, ...Lvb, [0, 100]], x: -V * 0.6, y: V * 0.8, r: rnd(25, 50), o: '100% 0%' },
+        { poly: [...Lhr, [100, 100], [cx, 100], ...rev(Lvb)], x: V * 0.6, y: V * 0.8, r: -rnd(25, 50), o: '0% 0%' }]; },
+    function drop(w, h, V) { const x = rnd(40, 60), L = jag([x, 0], [x, 100], 14, 3); return [
+      { poly: [[0, 0], ...L, [0, 100]], x: -w * 0.45, y: V * 1.2, r: -rnd(35, 55), o: '0% 0%', t: 1000 },
+      { poly: [...L, [100, 100], [100, 0]], x: w * 0.45, y: V * 1.2, r: rnd(35, 55), o: '100% 0%', t: 1000 }]; },
+  ];
+  function tearCard(face, rect, idx) {
+    const w = rect.width, h = rect.height, V = Math.max(innerWidth, innerHeight) * 1.1;
+    const root = el('<div class="tear" aria-hidden="true"><div class="tear-bg"></div></div>');
+    const pieces = TEARS[idx === undefined ? Math.floor(Math.random() * TEARS.length) : idx](w, h, V);
+    let end = 0; const anims = [];
+    pieces.forEach((p) => {
+      const wrap = document.createElement('div'); wrap.className = 'tear-piece';
+      wrap.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${w}px;height:${h}px;transform-origin:${p.o}`;
+      const c = face.cloneNode(true);
+      c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;transform:none;margin:0;animation:none;opacity:1;' + `clip-path:polygon(${p.poly.map((q) => q[0].toFixed(2) + '% ' + q[1].toFixed(2) + '%').join(',')})`;
+      wrap.appendChild(c); root.appendChild(wrap);
+      const t = p.t || 750, d = p.d || 0; end = Math.max(end, t + d);
+      anims.push([wrap, [
+        { transform: 'translate(0,0) rotate(0deg)', opacity: 1, easing: 'ease-out' },
+        { transform: `translate(${p.x * 0.12}px,${p.y * 0.06}px) rotate(${p.r * 0.3}deg)`, opacity: 1, offset: 0.15, easing: 'cubic-bezier(.55,0,.9,.6)' },
+        { transform: `translate(${p.x}px,${p.y}px) rotate(${p.r}deg)`, opacity: 0.9 },
+      ], { duration: t, delay: d, fill: 'both' }]);
+    });
+    document.body.appendChild(root);
+    anims.forEach(([n, k, o]) => n.animate(k, o));
+    root.firstChild.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'both' });
+    setTimeout(() => root.remove(), end + 120);
+  }
+  function closeLayer() {
+    const f = layer.querySelector('.face.front');
+    const r = f && f.childElementCount ? f.getBoundingClientRect() : null;
+    const ok = r && r.width > 60 && r.height > 80 && r.top < innerHeight && r.bottom > 0 && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const clone = ok ? f.cloneNode(true) : null;
+    layer.innerHTML = ''; document.body.style.overflow = '';
+    if (clone) tearCard(clone, r);
+  }
+  window.__tear = (i) => { const f = layer.querySelector('.face.front'); const r = f.getBoundingClientRect(); const c = f.cloneNode(true); layer.innerHTML = ''; tearCard(c, r, i); };
   function burst() {
     const colors = ['#6b1420', '#9cc9f0', '#fde9a4', '#f4a4b6', '#fff'];
     const c = el('<div class="confetti"></div>');
