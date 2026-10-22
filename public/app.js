@@ -471,14 +471,17 @@
     const i = S.info || {};
     const secret = (label, v) => `<div class="info"><h4>${label}</h4>${v ? `<p class="secretval">${esc(v)}</p><div class="btnrow"><button class="btn small" type="button" data-copy="${esc(v)}">Copier</button></div>` : '<p class="muted">Communiqué 48h avant l\'arrivée.</p>'}</div>`;
     const maps = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((i.address || '').replace(/\(.*\)/, ''));
+    const addr = (i.address || '').replace(/\(.*\)/, '').trim();
+    const waze = 'https://waze.com/ul?navigate=yes&q=' + encodeURIComponent(addr);
+    const AIRBNB = 'https://www.airbnb.fr/rooms/1084691340751867113';
     $('#house').innerHTML = `
-      <div class="info"><h4>Adresse</h4><p>${esc(i.address || '')}</p><div class="btnrow"><a class="btn small primary" href="${maps}" target="_blank" rel="noopener">Ouvrir dans Maps</a><button class="btn small" type="button" data-copy="${esc(i.address || '')}">Copier</button></div></div>
+      <div class="info"><h4>Adresse</h4><p>${esc(i.address || '')}</p><div class="btnrow"><a class="btn small primary" href="${maps}" target="_blank" rel="noopener">Google Maps</a><a class="btn small primary" href="${waze}" target="_blank" rel="noopener">Waze</a><button class="btn small" type="button" data-copy="${esc(i.address || '')}">Copier</button></div></div>
       <div class="info"><h4>Arrivée et départ</h4><p><b>Arrivée :</b> ${esc(i.arrival || '')}</p><p><b>Départ :</b> ${esc(i.departure || '')}</p></div>
       <div class="info"><h4>Accéder à la maison</h4><p>${esc(i.accessFoot || '')}</p><p>${esc(i.accessCar || '')}</p></div>
       ${secret('Code de la boîte à clés', i.keyCode)}
       ${secret('Wifi : ' + (i.wifiName || 'nom du réseau'), i.wifiPass ? i.wifiPass : '')}
       ${i.notes ? `<div class="info"><h4>À savoir</h4><p>${esc(i.notes).replace(/\n/g, '<br>')}</p></div>` : ''}
-      <div class="info"><h4>La maison</h4><p class="muted">D'après l'annonce.</p><div class="facts"><span>14 voyageurs</span><span>7 chambres</span><span>3 salles de bain</span><span>250 m²</span><span>Parc clos d'environ 5 000 m²</span><span>Cuisine équipée</span><span>Cheminée</span><span>Grande télé</span><span>Barbecue</span><span>Terrain de pétanque</span><span>Parking gratuit</span><span>Wifi</span></div></div>`;
+      <div class="info"><h4>La maison</h4><p class="muted">D'après l'annonce.</p><div class="btnrow" style="margin-bottom:10px"><a class="btn small" href="${AIRBNB}" target="_blank" rel="noopener">Voir l'annonce Airbnb</a></div><div class="facts"><span>14 voyageurs</span><span>7 chambres</span><span>3 salles de bain</span><span>250 m²</span><span>Parc clos d'environ 5 000 m²</span><span>Cuisine équipée</span><span>Cheminée</span><span>Grande télé</span><span>Barbecue</span><span>Terrain de pétanque</span><span>Parking gratuit</span><span>Wifi</span></div></div>`;
     $$('[data-copy]', $('#house')).forEach((b) => b.addEventListener('click', () => copy(b.dataset.copy)));
   }
 
