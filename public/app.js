@@ -1,0 +1,435 @@
+'use strict';
+(function () {
+  // ---------- Utilitaires ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const ls = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } },
+  };
+  const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'd' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+
+  const PILE_LABEL = { defi: 'DÉFI', verite: 'VÉRITÉ', duel: 'DUEL', gage: 'GAGE', sonia: 'SOGNE' };
+  const JOKER_TXT = { echange: 'ÉCHANGE', collectif: 'COLLECTIF', aide: 'AIDE' };
+
+  const S = {
+    device: ls.get('device', null) || uid(),
+    name: ls.get('name', ''),
+    data: null, byId: new Map(), counts: {}, online: 0, connected: false,
+    info: ls.get('info', null), nums: { active: false, round: 0, number: null, assigned: false },
+    active: ls.get('active', null),      // { id, hidden } : gage ou mission en cours
+    history: ls.get('history', []),      // [{ id, t }]
+    local: null,                         // état du moteur hors ligne
+  };
+  ls.set('device', S.device);
+
+  // ---------- Pictogrammes (jokers + mission secrète) ----------
+  const J = (x, y, w, c) => `<use href="#jester" x="${x}" y="${y}" width="${w}" height="${w}" ${c ? `style="color:${c}"` : ''}/>`;
+  const ICON = {
+    echange: `<svg viewBox="0 0 120 110" class="joker-ico" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"><path d="M16 62 A44 44 0 0 1 92 24"/><path d="M104 48 A44 44 0 0 1 28 86"/><path d="M86 8 L100 28 L76 32 Z" fill="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M34 102 L20 82 L44 78 Z" fill="currentColor" stroke-width="3" stroke-linejoin="round"/><g stroke="none" style="color:inherit">${J(30, 22, 62)}</g></svg>`,
+    collectif: `<svg viewBox="0 0 120 110" class="joker-ico" stroke="none">${J(36, 0, 48)}${J(2, 44, 52)}${J(66, 44, 52)}</svg>`,
+    aide: `<svg viewBox="0 0 120 110" class="joker-ico" stroke="none" fill="none">${J(4, 22, 74)}${J(72, 40, 44)}<g stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M74 28 q10 -8 20 0"/><path d="M80 14 q14 -10 28 0"/></g></svg>`,
+    secret: `<svg viewBox="0 0 100 100" fill="none"><use href="#jester" width="100" height="100"/></svg>`,
+  };
+
+  // ---------- Réseau + mode hors ligne ----------
+  async function post(path, body) {
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 5000);
+    try {
+      const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, device: S.device, name: S.name }), signal: ctrl.signal });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } finally { clearTimeout(t); }
+  }
+  function localEngine() {
+    if (!S.local) S.local = ls.get('localEngine', null) || Engine.newState(S.data);
+    return S.local;
+  }
+  function saveLocal() { ls.set('localEngine', S.local); }
+  function setOffline(v) { $('#offline').classList.toggle('hidden', !v); }
+
+  async function drawCard(pile, classic) {
+    try {
+      const r = await post(classic ? '/api/drawClassic' : '/api/draw', { pile });
+      S.counts = r.counts; renderPileCounts(); setOffline(false);
+      return r.id;
+    } catch (e) {
+      setOffline(true);
+      const st = localEngine();
+      const r = classic ? Engine.drawClassic(st, S.data, pile) : Engine.draw(st, S.data, pile);
+      S.counts = Engine.counts(st); saveLocal(); renderPileCounts();
+      return r.id;
+    }
+  }
+  async function putBack(pile, id) {
+    try { const r = await post('/api/putback', { pile, id }); S.counts = r.counts; renderPileCounts(); setOffline(false); }
+    catch (e) { setOffline(true); const st = localEngine(); Engine.putBack(st, pile, id); S.counts = Engine.counts(st); saveLocal(); renderPileCounts(); }
+  }
+
+  // ---------- Temps réel (SSE) ----------
+  let es = null;
+  function connect() {
+    if (es) es.close();
+    es = new EventSource(`/api/events?device=${encodeURIComponent(S.device)}&name=${encodeURIComponent(S.name || '')}`);
+    es.addEventListener('snapshot', (e) => {
+      const d = JSON.parse(e.data); S.connected = true; setOffline(false);
+      S.counts = d.counts; S.info = d.info; ls.set('info', d.info); S.online = d.online;
+      renderPileCounts(); renderHouse(); renderOnline(); handleNumbers(d.numbers, true);
+    });
+    es.addEventListener('counts', (e) => { S.counts = JSON.parse(e.data).counts; renderPileCounts(); });
+    es.addEventListener('online', (e) => { S.online = JSON.parse(e.data).online; renderOnline(); });
+    es.addEventListener('info', (e) => { S.info = JSON.parse(e.data).info; ls.set('info', S.info); renderHouse(); });
+    es.addEventListener('numbers', (e) => handleNumbers(JSON.parse(e.data), false));
+    es.onerror = () => { S.connected = false; renderOnline(); };
+  }
+  function renderOnline() {
+    const b = $('#online'); b.classList.toggle('on', S.connected);
+    $('span', b).textContent = S.connected ? `connecté${S.online > 1 ? ` : ${S.online} joueurs` : ''}` : 'hors connexion';
+  }
+
+  // ---------- Cartes : rendu ----------
+  function sizeClass(t) { return t.length > 125 ? 'xl' : t.length > 80 ? 'long' : ''; }
+  function frontInner(card, opts = {}) {
+    if (card.kind === 'joker') {
+      return `<div class="ct"><div class="jk-kicker">JOKER</div></div>
+        <div class="cbody">${ICON[card.joker]}<div class="jk-label">${JOKER_TXT[card.joker]}</div><div class="jk-rule">${esc(S.data.jokers[card.joker].rule)}</div></div>`;
+    }
+    const title = card.secret
+      ? `<div class="cc secret-band"><svg viewBox="0 0 100 100" style="color:#fff"><use href="#jester"/></svg>MISSION SECRÈTE</div>`
+      : `<div class="cc">${PILE_LABEL[card.pile]}</div>`;
+    const head = `<div class="ct"><div class="cn">N° ${card.number}</div>${title}</div>`;
+    if (card.secret && opts.hidden) {
+      return `${head}<div class="cbody"><div class="hidden-mission"><svg viewBox="0 0 100 100"><use href="#jester"/></svg><p>Ta mission est secrète. Touche « Afficher » pour la lire, puis cache-la.</p></div></div>`;
+    }
+    const precs = card.precisions && card.precisions.length ? `<div class="precs"><b>Précisions</b>${card.precisions.map((p) => `<p>${esc(p)}</p>`).join('')}</div>` : '';
+    return `${head}<div class="cbody"><img class="emb" alt="" src="img/emb_${card.pile}.webp"><div class="txt ${sizeClass(card.text)}">${esc(card.text)}</div>${precs}</div>`;
+  }
+  function faceClass(card) { return card.kind === 'joker' ? 'joker' : card.secret ? 'c-secret' : 'c-' + card.pile; }
+  function backHTML(pile) {
+    return `<div class="face back c-${pile}"><img alt="" src="img/emb_${pile}.webp"><div class="bn">${PILE_LABEL[pile]}</div><div class="bs">Sogne</div></div>`;
+  }
+  function ruleHTML(card) {
+    if (card.kind === 'joker' || !card.rule) return '';
+    return `<details class="rule-toggle"><summary>Rappel du barème</summary><p>${esc(card.rule)}</p></details>`;
+  }
+
+  // ---------- Piles ----------
+  function renderPiles() {
+    const box = $('#piles'); box.innerHTML = '';
+    S.data.piles.forEach((p, i) => {
+      const b = el(`<button class="pile ${p.id} ${i === 4 ? 'wide' : ''}" type="button" data-pile="${p.id}" aria-label="Tirer une carte ${PILE_LABEL[p.id]}">
+        <div class="stack"><div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"><img class="emb" alt="" src="img/emb_${p.id}.webp"><div class="name">${PILE_LABEL[p.id]}</div></div></div>
+        <div class="count" data-count="${p.id}"></div></button>`);
+      b.addEventListener('click', () => openDraw(p.id));
+      box.appendChild(b);
+    });
+    renderPileCounts();
+  }
+  function renderPileCounts() {
+    $$('[data-count]').forEach((n) => {
+      const c = S.counts[n.dataset.count];
+      n.textContent = c === undefined ? '' : `${c} carte${c > 1 ? 's' : ''} dans la pile`;
+    });
+  }
+  function renderRecent() {
+    const box = $('#recent'), list = $('#recent-list');
+    if (!S.history.length) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden'); list.innerHTML = '';
+    S.history.slice(0, 8).forEach((h) => {
+      const c = S.byId.get(h.id); if (!c) return;
+      const label = c.kind === 'joker' ? `Joker ${JOKER_TXT[c.joker]}` : c.secret ? 'Mission secrète' : `${PILE_LABEL[c.pile]} ${c.number}`;
+      const b = el(`<button class="pill ${c.kind === 'joker' ? 'joker' : c.pile}" type="button">${esc(label)}</button>`);
+      b.addEventListener('click', () => openSheet(c, { hidden: c.secret }));
+      list.appendChild(b);
+    });
+  }
+  function pushHistory(id) {
+    S.history = [{ id, t: Date.now() }, ...S.history.filter((h) => h.id !== id)].slice(0, 12);
+    ls.set('history', S.history); renderRecent();
+  }
+
+  // ---------- Gage / mission en cours ----------
+  function setActive(card) {
+    S.active = (card && card.pile === 'gage') ? { id: card.id, hidden: !!card.secret } : S.active;
+    ls.set('active', S.active); renderDock();
+  }
+  function clearActive() { S.active = null; ls.set('active', null); renderDock(); }
+  function renderDock() {
+    const d = $('#dock');
+    if (!S.active) { d.classList.add('hidden'); d.innerHTML = ''; return; }
+    const c = S.byId.get(S.active.id); if (!c) { clearActive(); return; }
+    d.classList.remove('hidden');
+    d.innerHTML = `<button type="button" class="${c.secret ? 'secret' : ''}">
+      <svg class="dk-ico" viewBox="0 0 100 100"><use href="#jester"/></svg>
+      <div><div class="dk-t">${c.secret ? 'Ma mission secrète' : 'Mon gage en cours'}</div><div class="dk-s">${c.secret ? 'Touche pour la relire en secret' : 'Touche pour le relire'}</div></div>
+      <span class="dk-go">Voir</span></button>`;
+    $('button', d).addEventListener('click', () => openSheet(c, { hidden: c.secret, endable: true }));
+  }
+
+  // ---------- Overlays ----------
+  const layer = $('#layer');
+  function closeLayer() { layer.innerHTML = ''; document.body.style.overflow = ''; }
+  function burst() {
+    const colors = ['#6b1420', '#9cc9f0', '#fde9a4', '#f4a4b6', '#fff'];
+    const c = el('<div class="confetti"></div>');
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('i'); const a = Math.random() * Math.PI * 2; const r = 90 + Math.random() * 160;
+      p.style.cssText = `background:${colors[i % colors.length]};--x:${Math.cos(a) * r}px;--y:${Math.sin(a) * r - 40}px;--r:${Math.random() * 720 - 360}deg;animation-delay:${Math.random() * 80}ms`;
+      c.appendChild(p);
+    }
+    document.body.appendChild(c); setTimeout(() => c.remove(), 1400);
+  }
+  function overlayShell(pile) {
+    document.body.style.overflow = 'hidden';
+    const ov = el(`<div class="overlay" role="dialog" aria-modal="true">
+      <div class="scene"><div class="card3d"><div class="face front"></div>${backHTML(pile)}</div></div>
+      <div class="ov-side"><div class="ov-top"></div><div class="ov-actions"></div><div class="slot-rule"></div></div></div>`);
+    layer.innerHTML = ''; layer.appendChild(ov);
+    const c3 = $('.card3d', ov);
+    requestAnimationFrame(() => requestAnimationFrame(() => c3.classList.add('in')));
+    return { ov, c3, front: $('.face.front', ov), top: $('.ov-top', ov), actions: $('.ov-actions', ov), slotRule: $('.slot-rule', ov) };
+  }
+  function setTop(o, text, bold) { o.top.innerHTML = ''; if (bold) { const b = document.createElement('b'); b.textContent = bold; o.top.append(b, document.createTextNode(text)); } else o.top.textContent = text; }
+  function setActions(o, list) {
+    o.actions.innerHTML = '';
+    list.forEach((a) => {
+      const b = el(`<button type="button" class="btn ${a.cls || ''}">${esc(a.label)}</button>`);
+      b.addEventListener('click', () => { if (b.disabled) return; a.run(b); });
+      o.actions.appendChild(b);
+    });
+  }
+  async function revealCard(o, card, opts = {}) {
+    o.front.className = `face front ${faceClass(card)}`;
+    o.front.innerHTML = (opts.banner ? `<div class="joker-banner">${esc(opts.banner)}</div>` : '') + frontInner(card, { hidden: card.secret });
+    o.slotRule.innerHTML = ruleHTML(card);
+    if (!o.c3.classList.contains('in')) await wait(120);
+    await wait(opts.fast ? 80 : 480);
+    o.c3.classList.add('flipped');
+    if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) { /* ignore */ } }
+    await wait(700); burst();
+  }
+  // Remet la carte face cachée puis la retourne sur une nouvelle carte
+  async function reflip(o, pile, card, opts) {
+    o.c3.classList.remove('flipped'); o.slotRule.innerHTML = ''; await wait(650);
+    await revealCard(o, card, { ...opts, fast: true });
+  }
+
+  function finalActions(o, card, extra) {
+    const acts = [];
+    if (card.secret) {
+      let shown = false;
+      acts.push({ label: 'Afficher ma mission', cls: 'primary', run: (b) => {
+        shown = !shown; o.front.innerHTML = frontInner(card, { hidden: !shown }); b.textContent = shown ? 'Masquer ma mission' : 'Afficher ma mission';
+      } });
+    }
+    acts.push({ label: card.secret ? 'C\'est noté, je cache la carte' : 'Fermer', cls: card.secret ? 'ghost' : 'primary', run: () => closeLayer() });
+    setActions(o, extra ? [...extra, ...acts] : acts);
+  }
+  function afterResolved(card) { pushHistory(card.id); setActive(card); }
+
+  async function openDraw(pileId) {
+    if (layer.firstChild) return;
+    const o = overlayShell(pileId);
+    setTop(o, ' : tirage en cours...', S.name || 'Joueur');
+    o.actions.innerHTML = '<div class="spin" style="margin:6px auto"></div>';
+    const id = await drawCard(pileId, false);
+    const card = S.byId.get(id);
+    if (!card) { setTop(o, 'Erreur de tirage'); setActions(o, [{ label: 'Fermer', run: closeLayer }]); return; }
+    setTop(o, ` a tiré dans ${PILE_LABEL[pileId]}`, S.name || 'Joueur');
+    await revealCard(o, card);
+    if (card.kind === 'joker') return jokerFlow(o, card);
+    afterResolved(card); finalActions(o, card);
+  }
+
+  // ---------- Jokers ----------
+  function jokerFlow(o, joker) {
+    const pile = joker.pile, type = joker.joker;
+    pushHistory(joker.id);
+    if (type === 'echange') {
+      setActions(o, [
+        { label: 'Piocher 2 cartes classiques', cls: 'primary', run: () => echangeDraw(o, joker) },
+        { label: 'Ne pas l\'utiliser : remettre le joker dans la pile', cls: 'ghost', run: async (b) => {
+          b.disabled = true; await putBack(pile, joker.id);
+          const id = await drawCard(pile, true); const card = S.byId.get(id);
+          setTop(o, ' : joker remis dans la pile', S.name || 'Joueur');
+          await reflip(o, pile, card, { banner: 'Joker remis dans la pile' }); afterResolved(card); finalActions(o, card);
+        } },
+      ]);
+    } else {
+      setActions(o, [{ label: 'Piocher la carte à résoudre', cls: 'primary', run: async (b) => {
+        b.disabled = true; const id = await drawCard(pile, true); const card = S.byId.get(id);
+        await reflip(o, pile, card, { banner: `Carte à résoudre avec le joker ${JOKER_TXT[type]}` });
+        pushHistory(card.id);
+        setTop(o, ` : joker ${JOKER_TXT[type]}`, S.name || 'Joueur');
+        setActions(o, [
+          { label: `Utiliser le joker ${JOKER_TXT[type]}`, cls: 'primary', run: () => {
+            setActive(card);
+            o.front.innerHTML = `<div class="joker-banner">Joker ${JOKER_TXT[type]} utilisé : ${type === 'collectif' ? 'transforme ton épreuve en action collective' : 'choisis un joueur consentant pour t\'aider'}</div>` + frontInner(card, { hidden: card.secret });
+            finalActions(o, card);
+          } },
+          { label: 'Ne pas l\'utiliser : remettre le joker dans la pile', cls: 'ghost', run: async () => {
+            await putBack(pile, joker.id); setActive(card);
+            o.front.innerHTML = `<div class="joker-banner">Joker remis dans la pile : joue la carte normalement</div>` + frontInner(card, { hidden: card.secret });
+            finalActions(o, card);
+          } },
+        ]);
+      } }]);
+    }
+  }
+  async function echangeDraw(o, joker) {
+    const pile = joker.pile;
+    setActions(o, [{ label: 'Tirage en cours...', cls: 'ghost', run: () => {} }]);
+    const a = S.byId.get(await drawCard(pile, true)); const b = S.byId.get(await drawCard(pile, true));
+    o.c3.classList.remove('flipped'); o.slotRule.innerHTML = '';
+    await wait(500);
+    const scene = $('.scene', o.ov);
+    const mk = (c) => `<div class="mini pick"><div class="card3d in"><div class="face front ${faceClass(c)}">${frontInner(c, {})}<div class="pickme">Touche pour choisir</div></div></div></div>`;
+    scene.innerHTML = `<div class="twin" style="height:100%;align-items:center">${mk(a)}${mk(b)}</div>`;
+    scene.style.perspective = 'none';
+    // les faces avant sont en rotateY(180) : on les remet à plat dans ce mode
+    $$('.mini .card3d', scene).forEach((c3) => { c3.style.transform = 'none'; $('.face.front', c3).style.transform = 'none'; });
+    setTop(o, ' : choisis la carte à jouer', S.name || 'Joueur');
+    setActions(o, [{ label: 'L\'autre carte retournera dans la pile', cls: 'ghost', run: () => {} }]);
+    const minis = $$('.mini', scene);
+    [[minis[0], a, b], [minis[1], b, a]].forEach(([m, keep, drop]) => m.addEventListener('click', async () => {
+      minis.forEach((x) => { x.style.pointerEvents = 'none'; });
+      await putBack(pile, drop.id);
+      pushHistory(keep.id);
+      // retour à la scène principale avec la carte choisie
+      scene.removeAttribute('style');
+      scene.innerHTML = `<div class="card3d in"><div class="face front"></div>${backHTML(pile)}</div>`;
+      o.c3 = $('.card3d', scene); o.front = $('.face.front', scene);
+      setTop(o, ` joue cette carte (l'autre est remise dans la pile)`, S.name || 'Joueur');
+      await revealCard(o, keep, { banner: 'Joker ÉCHANGE utilisé' });
+      setActive(keep); finalActions(o, keep);
+    }));
+  }
+
+  // Fiche d'une carte déjà tirée (gage/mission en cours, historique)
+  function openSheet(card, opts = {}) {
+    if (layer.firstChild) return;
+    document.body.style.overflow = 'hidden';
+    let hidden = !!opts.hidden;
+    const ov = el(`<div class="overlay" role="dialog" aria-modal="true"><div class="sheet-card"><div class="face front ${faceClass(card)}"></div></div><div class="ov-side"><div class="ov-top"></div><div class="ov-actions"></div><div class="slot-rule"></div></div></div>`);
+    layer.innerHTML = ''; layer.appendChild(ov);
+    const face = $('.face', ov); const draw = () => { face.innerHTML = frontInner(card, { hidden }); };
+    draw();
+    const o = { actions: $('.ov-actions', ov) };
+    const acts = [];
+    if (card.secret) acts.push({ label: hidden ? 'Afficher ma mission' : 'Masquer ma mission', cls: 'primary', run: (b) => { hidden = !hidden; draw(); b.textContent = hidden ? 'Afficher ma mission' : 'Masquer ma mission'; } });
+    if (opts.endable) acts.push({ label: 'C\'est terminé (mon tour est passé)', cls: card.secret ? 'ghost' : 'primary', run: () => { clearActive(); closeLayer(); toast('Gage terminé'); } });
+    acts.push({ label: 'Fermer', cls: 'ghost', run: closeLayer });
+    setActions(o, acts);
+    $('.slot-rule', ov).innerHTML = ruleHTML(card);
+  }
+
+  function toast(t) { const n = el(`<div class="toast">${esc(t)}</div>`); document.body.appendChild(n); setTimeout(() => n.remove(), 2200); }
+
+  // ---------- Numéros ----------
+  let numTimer = null;
+  function handleNumbers(m, fromSnapshot) {
+    const btn = $('#numbtn');
+    if (!m || !m.active) { S.nums = { active: false, round: m ? m.round : 0, number: null, assigned: false }; btn.classList.add('hidden'); hideNumber(); return; }
+    S.nums = { active: true, round: m.round, number: m.number ?? null, assigned: !!m.assigned };
+    if (S.nums.number === null || S.nums.number === undefined) {
+      btn.classList.add('hidden');
+      if (!fromSnapshot || ls.get('numToast', 0) !== m.round) { toast('Pas de numéro pour toi cette fois'); ls.set('numToast', m.round); }
+      return;
+    }
+    btn.classList.remove('hidden');
+    if (ls.get('numShown', 0) !== m.round) { ls.set('numShown', m.round); showNumber(10000); }
+  }
+  function hideNumber() { clearTimeout(numTimer); const n = $('.numov'); if (n) n.remove(); }
+  function showNumber(ms) {
+    hideNumber(); if (S.nums.number == null) return;
+    const n = el(`<div class="numov"><div class="k">Ton numéro</div><div class="n">${S.nums.number}</div><div class="bar"><i></i></div><small>Touche l'écran pour le cacher</small></div>`);
+    document.body.appendChild(n);
+    const bar = $('.bar i', n); bar.style.transition = `transform ${ms}ms linear`;
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; }));
+    if (navigator.vibrate) { try { navigator.vibrate([60, 40, 60]); } catch (e) { /* ignore */ } }
+    n.addEventListener('click', hideNumber);
+    numTimer = setTimeout(hideNumber, ms);
+  }
+  $('#numbtn').addEventListener('click', () => showNumber(4000));
+
+  // ---------- Règles ----------
+  function renderRules() {
+    const box = $('#rules'); box.innerHTML = '';
+    window.RULES.forEach((s) => {
+      const a = el(`<div class="acc ${s.open ? 'open' : ''}" id="r-${s.id}"><button type="button" aria-expanded="${!!s.open}"><b>${s.title}</b><i>+</i></button><div class="body">${s.html}</div></div>`);
+      $('button', a).addEventListener('click', (e) => { const open = a.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded', open); });
+      box.appendChild(a);
+    });
+  }
+
+  // ---------- Programme ----------
+  const PROG = [
+    { day: 'Vendredi', slots: [['A partir de 20h :', 'Arrivée'], ['Dès 21h :', 'Apéro dînatoire et Olympiades - Beer Pong, Qui connaît le mieux Sogne, Mimes...']] },
+    { day: 'Samedi', slots: [['11h :', 'Cours de Pilate par Professeur Boulud'], ['13h :', 'Raclette party'], ['16h :', 'Activité manuelle - Le jeu du peintre'], ['A partir de 19h :', 'CONCOURS TOP CHEF', 'Brigade Sue & Brigade Boulud au rapport !']] },
+    { day: 'Dimanche', slots: [['A partir de 12h :', 'Brunch thème “Le jogging c’est la vie”']] },
+  ];
+  function renderProg() {
+    $('#prog').innerHTML = PROG.map((d) => `<div class="day"><h3>${d.day}</h3>${d.slots.map((s) => `<div class="slot"><span class="t">${esc(s[0])}</span><div class="d">${esc(s[1])}${s[2] ? `<em>${esc(s[2])}</em>` : ''}</div></div>`).join('')}</div>`).join('');
+  }
+
+  // ---------- Maison ----------
+  const copy = async (t) => { try { await navigator.clipboard.writeText(t); toast('Copié'); } catch (e) { toast(t); } };
+  function renderHouse() {
+    const i = S.info || {};
+    const secret = (label, v) => `<div class="info"><h4>${label}</h4>${v ? `<p class="secretval">${esc(v)}</p><div class="btnrow"><button class="btn small" type="button" data-copy="${esc(v)}">Copier</button></div>` : '<p class="muted">Communiqué 48h avant l\'arrivée.</p>'}</div>`;
+    const maps = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((i.address || '').replace(/\(.*\)/, ''));
+    $('#house').innerHTML = `
+      <div class="info"><h4>Adresse</h4><p>${esc(i.address || '')}</p><div class="btnrow"><a class="btn small primary" href="${maps}" target="_blank" rel="noopener">Ouvrir dans Maps</a><button class="btn small" type="button" data-copy="${esc(i.address || '')}">Copier</button></div></div>
+      <div class="info"><h4>Arrivée et départ</h4><p><b>Arrivée :</b> ${esc(i.arrival || '')}</p><p><b>Départ :</b> ${esc(i.departure || '')}</p></div>
+      <div class="info"><h4>Accéder à la maison</h4><p>${esc(i.accessFoot || '')}</p><p>${esc(i.accessCar || '')}</p></div>
+      ${secret('Code de la boîte à clés', i.keyCode)}
+      ${secret('Wifi : ' + (i.wifiName || 'nom du réseau'), i.wifiPass ? i.wifiPass : '')}
+      ${i.notes ? `<div class="info"><h4>À savoir</h4><p>${esc(i.notes).replace(/\n/g, '<br>')}</p></div>` : ''}
+      <div class="info"><h4>La maison</h4><p class="muted">D'après l'annonce.</p><div class="facts"><span>14 voyageurs</span><span>7 chambres</span><span>3 salles de bain</span><span>250 m²</span><span>Parc clos d'environ 5 000 m²</span><span>Cuisine équipée</span><span>Cheminée</span><span>Grande télé</span><span>Barbecue</span><span>Terrain de pétanque</span><span>Parking gratuit</span><span>Wifi</span></div></div>`;
+    $$('[data-copy]', $('#house')).forEach((b) => b.addEventListener('click', () => copy(b.dataset.copy)));
+  }
+
+  // ---------- Navigation, prénom ----------
+  function showTab(t) {
+    $$('.view').forEach((v) => v.classList.toggle('hidden', v.id !== 'view-' + t));
+    $$('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
+    ls.set('tab', t); window.scrollTo(0, 0);
+  }
+  $$('#nav button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+  function renderHello() { $('#hello').textContent = S.name ? `Salut ${S.name} !` : ''; }
+  function askName() {
+    const m = el(`<div class="modal"><div class="m"><h2>Ton prénom ?</h2><p class="muted" style="margin:6px 0 0">Pour personnaliser ton écran et que l'organisateur te retrouve.</p><input id="nm" maxlength="24" autocomplete="given-name" placeholder="Ex : Charlie"><button class="btn primary" id="nmok" type="button" style="width:100%">C'est parti</button><button class="btn" id="nmskip" type="button" style="width:100%;margin-top:8px;border-color:transparent">Plus tard</button></div></div>`);
+    document.body.appendChild(m);
+    const done = (save) => {
+      if (save) { S.name = $('#nm', m).value.replace(/[<>]/g, '').trim().slice(0, 24); ls.set('name', S.name); renderHello(); post('/api/name', { name: S.name }).catch(() => {}); }
+      ls.set('nameAsked', true); m.remove();
+    };
+    $('#nmok', m).addEventListener('click', () => done(true));
+    $('#nmskip', m).addEventListener('click', () => done(false));
+    $('#nm', m).addEventListener('keydown', (e) => { if (e.key === 'Enter') done(true); });
+    setTimeout(() => $('#nm', m).focus(), 100);
+  }
+  $('#hello').addEventListener('click', askName);
+
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && layer.firstChild) closeLayer(); });
+  layer.addEventListener('click', (e) => { if (e.target.classList && e.target.classList.contains('overlay') && layer.querySelector('.sheet-card')) closeLayer(); });
+
+  // ---------- Démarrage ----------
+  async function init() {
+    try { S.data = await (await fetch('cards.json')).json(); }
+    catch (e) { $('#piles').innerHTML = '<p>Impossible de charger les cartes. Recharge la page.</p>'; return; }
+    S.data.cards.forEach((c) => S.byId.set(c.id, c));
+    Engine.newState(S.data); // validation
+    renderPiles(); renderRules(); renderProg(); renderHouse(); renderRecent(); renderDock(); renderHello(); renderOnline();
+    showTab(ls.get('tab', 'cards'));
+    connect();
+    if (!ls.get('nameAsked', false)) setTimeout(askName, 700);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  window.__sogne = { frontInner, faceClass, S };
+  init();
+})();

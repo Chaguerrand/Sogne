@@ -1,0 +1,1580 @@
+{
+  "source": "Sonia_REFERENTIEL_MAITRE_COMPLET(1).pdf, 21 octobre 2026",
+  "cards": [
+    {
+      "id": "défi-01",
+      "category": "DÉFI",
+      "number": 1,
+      "text": "Imite un joueur. Les autres doivent deviner lequel.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-02",
+      "category": "DÉFI",
+      "number": 2,
+      "text": "Imite une célébrité choisie par le groupe.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-03",
+      "category": "DÉFI",
+      "number": 3,
+      "text": "Mime un film.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-04",
+      "category": "DÉFI",
+      "number": 4,
+      "text": "Imite un animal choisi par ton voisin.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-05",
+      "category": "DÉFI",
+      "number": 5,
+      "text": "Mime une scène de rupture amoureuse.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-06",
+      "category": "DÉFI",
+      "number": 6,
+      "text": "Mime une expression française.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-07",
+      "category": "DÉFI",
+      "number": 7,
+      "text": "Mime une série télé.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-08",
+      "category": "DÉFI",
+      "number": 8,
+      "text": "Imite un personnage de dessin animé.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-09",
+      "category": "DÉFI",
+      "number": 9,
+      "text": "Fais une déclaration d'amour passionnée à un objet.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-10",
+      "category": "DÉFI",
+      "number": 10,
+      "text": "Vends un objet comme une invention révolutionnaire.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-11",
+      "category": "DÉFI",
+      "number": 11,
+      "text": "Prononce un discours de victoire aux Oscars.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-12",
+      "category": "DÉFI",
+      "number": 12,
+      "text": "Présente la météo en annonçant une catastrophe.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-13",
+      "category": "DÉFI",
+      "number": 13,
+      "text": "Joue un serveur qui n'a plus rien à manger.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-14",
+      "category": "DÉFI",
+      "number": 14,
+      "text": "Improvise une bande-annonce dramatique sur la soirée.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-15",
+      "category": "DÉFI",
+      "number": 15,
+      "text": "Imite un influenceur qui vend une merde inutile.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-16",
+      "category": "DÉFI",
+      "number": 16,
+      "text": "Invente une histoire d'horreur avec un objet imposé.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-17",
+      "category": "DÉFI",
+      "number": 17,
+      "text": "Défends une théorie du complot absurde pendant 30 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-18",
+      "category": "DÉFI",
+      "number": 18,
+      "text": "Improvise une chorégraphie de 20 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-19",
+      "category": "DÉFI",
+      "number": 19,
+      "text": "Fais deviner une chanson en la fredonnant.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-20",
+      "category": "DÉFI",
+      "number": 20,
+      "text": "Chante « Joyeux anniversaire » dans un style musical imposé.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-21",
+      "category": "DÉFI",
+      "number": 21,
+      "text": "Fais un playback dramatique sur une chanson imposée.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-22",
+      "category": "DÉFI",
+      "number": 22,
+      "text": "Transforme une comptine pour enfants en rap.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-23",
+      "category": "DÉFI",
+      "number": 23,
+      "text": "Cite 10 pays en 20 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-24",
+      "category": "DÉFI",
+      "number": 24,
+      "text": "Cite 8 films Disney en 20 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-25",
+      "category": "DÉFI",
+      "number": 25,
+      "text": "Cite 7 marques de voitures en 15 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-26",
+      "category": "DÉFI",
+      "number": 26,
+      "text": "Trouve 5 mots qui riment avec « soirée » en 20 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-27",
+      "category": "DÉFI",
+      "number": 27,
+      "text": "Cite 8 célébrités avec la même initiale, choisie par le groupe.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-28",
+      "category": "DÉFI",
+      "number": 28,
+      "text": "Raconte une histoire de 20 secondes sans utiliser le verbe « être ».",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-29",
+      "category": "DÉFI",
+      "number": 29,
+      "text": "Cite 5 chansons avec un prénom dans le titre en 30 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-30",
+      "category": "DÉFI",
+      "number": 30,
+      "text": "Construis une tour de 6 objets sans qu'elle s'écroule.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-31",
+      "category": "DÉFI",
+      "number": 31,
+      "text": "Lance une boule de papier dans un verre à 1 mètre. Tu as 3 essais.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-32",
+      "category": "DÉFI",
+      "number": 32,
+      "text": "Fais tenir une cuillère en équilibre sur un doigt pendant 10 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-33",
+      "category": "DÉFI",
+      "number": 33,
+      "text": "Dessine un chat les yeux fermés. Le groupe doit le reconnaître.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-34",
+      "category": "DÉFI",
+      "number": 34,
+      "text": "Écris ton prénom de ta main non dominante en moins de 15 secondes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-35",
+      "category": "DÉFI",
+      "number": 35,
+      "text": "Déplace un petit objet sur 50 cm en soufflant dessus.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-36",
+      "category": "DÉFI",
+      "number": 36,
+      "text": "Choisis deux joueurs pour improviser avec toi une publicité ridicule.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-37",
+      "category": "DÉFI",
+      "number": 37,
+      "text": "Trois joueurs te donnent chacun un mot. Invente une histoire avec.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-38",
+      "category": "DÉFI",
+      "number": 38,
+      "text": "Organise une chorégraphie de 15 secondes avec trois joueurs volontaires.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-39",
+      "category": "DÉFI",
+      "number": 39,
+      "text": "Parle une langue inventée. Un joueur doit te traduire.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-40",
+      "category": "DÉFI",
+      "number": 40,
+      "text": "Fais une déclaration d'amitié exagérée à un joueur de ton choix.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-41",
+      "category": "DÉFI",
+      "number": 41,
+      "text": "Fais deviner une célébrité en répondant uniquement par oui ou non.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-42",
+      "category": "DÉFI",
+      "number": 42,
+      "text": "Fais jouer une scène improvisée à trois joueurs.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-43",
+      "category": "DÉFI",
+      "number": 43,
+      "text": "Fais un discours de remerciement en citant au moins cinq personnes présentes.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-44",
+      "category": "DÉFI",
+      "number": 44,
+      "text": "Le groupe te donne cinq mots improbables. Invente une histoire avec.",
+      "secret_mission": false
+    },
+    {
+      "id": "défi-45",
+      "category": "DÉFI",
+      "number": 45,
+      "text": "Réponds comme un politicien à trois questions posées par un joueur.",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-01",
+      "category": "VÉRITÉ",
+      "number": 1,
+      "text": "Quelle est ta plus grosse honte en public ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-02",
+      "category": "VÉRITÉ",
+      "number": 2,
+      "text": "Quelle est ta plus grosse folie par amour ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-03",
+      "category": "VÉRITÉ",
+      "number": 3,
+      "text": "As-tu déjà envoyé un message au mauvais destinataire ? Raconte.",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-04",
+      "category": "VÉRITÉ",
+      "number": 4,
+      "text": "Quelle est ta pire excuse pour annuler un rendez-vous ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-05",
+      "category": "VÉRITÉ",
+      "number": 5,
+      "text": "Quelle est ta plus grosse bourde au travail ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-06",
+      "category": "VÉRITÉ",
+      "number": 6,
+      "text": "Quel est ton pire rendez-vous amoureux ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-07",
+      "category": "VÉRITÉ",
+      "number": 7,
+      "text": "Quelle chose gênante tes parents ont-ils découverte ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-08",
+      "category": "VÉRITÉ",
+      "number": 8,
+      "text": "Quelle est ta pire mésaventure en vacances ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-09",
+      "category": "VÉRITÉ",
+      "number": 9,
+      "text": "Quel est ton plus gros mensonge découvert en public ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-10",
+      "category": "VÉRITÉ",
+      "number": 10,
+      "text": "Quelle est ta parole la plus embarrassante, dite sans réfléchir ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-11",
+      "category": "VÉRITÉ",
+      "number": 11,
+      "text": "Quelle habitude bizarre caches-tu aux autres ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-12",
+      "category": "VÉRITÉ",
+      "number": 12,
+      "text": "Quel est ton plaisir coupable le plus honteux ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-13",
+      "category": "VÉRITÉ",
+      "number": 13,
+      "text": "As-tu déjà feint d'aimer un cadeau offert par un joueur ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-14",
+      "category": "VÉRITÉ",
+      "number": 14,
+      "text": "Sur quoi as-tu menti pour la dernière fois ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-15",
+      "category": "VÉRITÉ",
+      "number": 15,
+      "text": "Quelle est la chose la plus puérile que tu fais encore ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-16",
+      "category": "VÉRITÉ",
+      "number": 16,
+      "text": "Quel est ton achat le plus inutile ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-17",
+      "category": "VÉRITÉ",
+      "number": 17,
+      "text": "As-tu déjà simulé une maladie pour éviter quelque chose ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-18",
+      "category": "VÉRITÉ",
+      "number": 18,
+      "text": "Quel est ton plus gros défaut inavouable ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-19",
+      "category": "VÉRITÉ",
+      "number": 19,
+      "text": "Quelle est ta dernière recherche Internet inavouable ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-20",
+      "category": "VÉRITÉ",
+      "number": 20,
+      "text": "Quel objet ridicule conserves-tu encore ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-21",
+      "category": "VÉRITÉ",
+      "number": 21,
+      "text": "Qui survivrait le moins longtemps sur une île déserte ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-22",
+      "category": "VÉRITÉ",
+      "number": 22,
+      "text": "Qui serait le pire colocataire ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-23",
+      "category": "VÉRITÉ",
+      "number": 23,
+      "text": "Qui deviendrait célèbre pour une raison ridicule ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-24",
+      "category": "VÉRITÉ",
+      "number": 24,
+      "text": "Qui risquerait le plus de finir en garde à vue ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-25",
+      "category": "VÉRITÉ",
+      "number": 25,
+      "text": "Qui ment le mieux ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-26",
+      "category": "VÉRITÉ",
+      "number": 26,
+      "text": "Qui serait le meilleur candidat de téléréalité ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-27",
+      "category": "VÉRITÉ",
+      "number": 27,
+      "text": "Qui serait le plus susceptible de rejoindre une secte ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-28",
+      "category": "VÉRITÉ",
+      "number": 28,
+      "text": "Qui dépenserait un million d'euros le plus vite ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-29",
+      "category": "VÉRITÉ",
+      "number": 29,
+      "text": "Qui serait le pire patron ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-30",
+      "category": "VÉRITÉ",
+      "number": 30,
+      "text": "Qui pourrait disparaître une semaine sans prévenir ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-31",
+      "category": "VÉRITÉ",
+      "number": 31,
+      "text": "Quel est ton pire tue-l'amour ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-32",
+      "category": "VÉRITÉ",
+      "number": 32,
+      "text": "As-tu déjà eu un crush inattendu ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-33",
+      "category": "VÉRITÉ",
+      "number": 33,
+      "text": "Quel est ton message de drague le plus gênant ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-34",
+      "category": "VÉRITÉ",
+      "number": 34,
+      "text": "As-tu déjà accepté un rendez-vous par politesse ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-35",
+      "category": "VÉRITÉ",
+      "number": 35,
+      "text": "Quel est ton geste le plus romantique ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-36",
+      "category": "VÉRITÉ",
+      "number": 36,
+      "text": "As-tu déjà inventé une excuse pour fuir un rendez-vous en cours ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-37",
+      "category": "VÉRITÉ",
+      "number": 37,
+      "text": "Quelle opinion impopulaire assumes-tu complètement ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-38",
+      "category": "VÉRITÉ",
+      "number": 38,
+      "text": "Quel film adoré de tous trouves-tu nul ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-39",
+      "category": "VÉRITÉ",
+      "number": 39,
+      "text": "Quelle célébrité tout le monde aime, sauf toi ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-40",
+      "category": "VÉRITÉ",
+      "number": 40,
+      "text": "Quel aliment très populaire détestes-tu ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-41",
+      "category": "VÉRITÉ",
+      "number": 41,
+      "text": "Préférerais-tu lire les pensées des autres ou qu'ils lisent les tiennes ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-42",
+      "category": "VÉRITÉ",
+      "number": 42,
+      "text": "Qui arriverait en retard à son propre mariage ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-43",
+      "category": "VÉRITÉ",
+      "number": 43,
+      "text": "Qui garderait le moins longtemps un secret ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-44",
+      "category": "VÉRITÉ",
+      "number": 44,
+      "text": "Qui serait éliminé en premier d'un jeu de stratégie ?",
+      "secret_mission": false
+    },
+    {
+      "id": "vérité-45",
+      "category": "VÉRITÉ",
+      "number": 45,
+      "text": "Qui serait le pire organisateur de vacances ?",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-01",
+      "category": "DUEL",
+      "number": 1,
+      "text": "Pierre-feuille-ciseaux : premier à 3 victoires.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-02",
+      "category": "DUEL",
+      "number": 2,
+      "text": "Faites une partie de barbichette. Le premier qui rit perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-03",
+      "category": "DUEL",
+      "number": 3,
+      "text": "Trouvez 5 objets rouges. Le premier gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-04",
+      "category": "DUEL",
+      "number": 4,
+      "text": "Rapportez deux objets choisis par Sonia. Le premier gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-05",
+      "category": "DUEL",
+      "number": 5,
+      "text": "Réflexe de couleur: Sonia annonce 3 couleurs successives. Le premier à toucher un objet de chaque couleur gagne la manche.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-06",
+      "category": "DUEL",
+      "number": 6,
+      "text": "Duel de Dobble en 5 manches. Le plus de victoires gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-07",
+      "category": "DUEL",
+      "number": 7,
+      "text": "Jeu des pouces : Posez vos pouces sur la table. Au signal, le dernier à lever le sien perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-08",
+      "category": "DUEL",
+      "number": 8,
+      "text": "Citez des pays à tour de rôle. Le premier qui bloque perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-09",
+      "category": "DUEL",
+      "number": 9,
+      "text": "Citez des films Disney à tour de rôle. Le premier qui bloque perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-10",
+      "category": "DUEL",
+      "number": 10,
+      "text": "Récitez l'alphabet à deux, une lettre chacun, le plus vite possible.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-11",
+      "category": "DUEL",
+      "number": 11,
+      "text": "Citez des chansons avec un prénom ou une couleur. Le premier qui bloque perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-12",
+      "category": "DUEL",
+      "number": 12,
+      "text": "Citez des célébrités : chaque prénom commence par la dernière lettre du précédent.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-13",
+      "category": "DUEL",
+      "number": 13,
+      "text": "Citez des films avec un acteur imposé. Le premier qui bloque perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-14",
+      "category": "DUEL",
+      "number": 14,
+      "text": "Construisez une tour de 6 objets. Le premier qui réussit gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-15",
+      "category": "DUEL",
+      "number": 15,
+      "text": "Faites tenir une cuillère sur un doigt. Le premier qui la fait tomber perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-16",
+      "category": "DUEL",
+      "number": 16,
+      "text": "Dessinez un cochon les yeux fermés. Le groupe vote pour le meilleur.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-17",
+      "category": "DUEL",
+      "number": 17,
+      "text": "Faites glisser une pièce. La plus proche du bord sans tomber gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-18",
+      "category": "DUEL",
+      "number": 18,
+      "text": "Transportez un objet sur le dos de la main. Le premier qui le fait tomber perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-19",
+      "category": "DUEL",
+      "number": 19,
+      "text": "Lancez une boulette de papier. La plus proche de la cible gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-20",
+      "category": "DUEL",
+      "number": 20,
+      "text": "Inventez chacun un slogan pour Sonia. Le groupe vote.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-21",
+      "category": "DUEL",
+      "number": 21,
+      "text": "Racontez chacun une blague. Le groupe vote pour la meilleure.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-22",
+      "category": "DUEL",
+      "number": 22,
+      "text": "Imitez la même célébrité. Le groupe vote pour la meilleure imitation.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-23",
+      "category": "DUEL",
+      "number": 23,
+      "text": "Faites chacun une publicité pour le même objet. Le groupe vote.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-24",
+      "category": "DUEL",
+      "number": 24,
+      "text": "Faites un compliment original à votre adversaire. Le groupe vote.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-25",
+      "category": "DUEL",
+      "number": 25,
+      "text": "Inventez chacun un titre de film sur la soirée. Le groupe vote.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-26",
+      "category": "DUEL",
+      "number": 26,
+      "text": "Tous debout ! Au signal, le dernier à s'asseoir perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-27",
+      "category": "DUEL",
+      "number": 27,
+      "text": "Au signal, le dernier à toucher un objet rouge perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-28",
+      "category": "DUEL",
+      "number": 28,
+      "text": "Jouez à « Dans ma valise ». Le premier qui se trompe perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-29",
+      "category": "DUEL",
+      "number": 29,
+      "text": "Comptez jusqu'à 15 sans ordre défini. Deux voix simultanées : recommencez !",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-30",
+      "category": "DUEL",
+      "number": 30,
+      "text": "Trouvez un objet commençant par une lettre imposée. Le dernier perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-31",
+      "category": "DUEL",
+      "number": 31,
+      "text": "Citez un film chacun. Plus de 3 secondes d'hésitation : perdu !",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-32",
+      "category": "DUEL",
+      "number": 32,
+      "text": "Trois joueurs racontent une anecdote, dont au moins une fausse. Démasquez les menteurs !",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-33",
+      "category": "DUEL",
+      "number": 33,
+      "text": "Deux vérités, un mensonge : un joueur raconte, les autres votent.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-34",
+      "category": "DUEL",
+      "number": 34,
+      "text": "Invente une définition pour un mot absurde. Le groupe juge.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-35",
+      "category": "DUEL",
+      "number": 35,
+      "text": "Choisissez un nombre entre 1 et 100. Le plus proche du nombre tiré au sort gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-36",
+      "category": "DUEL",
+      "number": 36,
+      "text": "Votez secrètement pour le joueur le plus compétitif. Révélez les votes.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-37",
+      "category": "DUEL",
+      "number": 37,
+      "text": "Deux équipes miment un film. La première qui le fait deviner gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-38",
+      "category": "DUEL",
+      "number": 38,
+      "text": "Blind test par équipes : la première à 3 bonnes réponses gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-39",
+      "category": "DUEL",
+      "number": 39,
+      "text": "Téléphone arabe par équipes. La phrase la plus fidèle gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-40",
+      "category": "DUEL",
+      "number": 40,
+      "text": "Dessin par équipes : un trait par membre. Le groupe vote.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-41",
+      "category": "DUEL",
+      "number": 41,
+      "text": "Deux équipes citent 10 marques de bière. La première gagne.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-42",
+      "category": "DUEL",
+      "number": 42,
+      "text": "Trois joueurs improvisent une rupture. Le groupe attribue les rôles.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-43",
+      "category": "DUEL",
+      "number": 43,
+      "text": "Trois joueurs inventent une histoire, une phrase chacun, pendant une minute.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-44",
+      "category": "DUEL",
+      "number": 44,
+      "text": "Trois joueurs rejouent un film connu. Le groupe doit deviner lequel.",
+      "secret_mission": false
+    },
+    {
+      "id": "duel-45",
+      "category": "DUEL",
+      "number": 45,
+      "text": "Quatre joueurs improvisent une scène de restaurant catastrophique.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-01",
+      "category": "GAGE",
+      "number": 1,
+      "text": "Termine chaque phrase par « mon petit poney ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-02",
+      "category": "GAGE",
+      "number": 2,
+      "text": "Joue au ni oui ni non pendant deux tours.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-03",
+      "category": "GAGE",
+      "number": 3,
+      "text": "Commence chaque phrase par « Selon mes sources… ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-04",
+      "category": "GAGE",
+      "number": 4,
+      "text": "Parle uniquement à la troisième personne.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-05",
+      "category": "GAGE",
+      "number": 5,
+      "text": "Glisse « cornichon » dans chaque conversation.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-06",
+      "category": "GAGE",
+      "number": 6,
+      "text": "Interdiction de dire « je ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-07",
+      "category": "GAGE",
+      "number": 7,
+      "text": "Réponds toujours par une expression française.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-08",
+      "category": "GAGE",
+      "number": 8,
+      "text": "Fais des phrases de trois mots maximum.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-09",
+      "category": "GAGE",
+      "number": 9,
+      "text": "Appelle tout le monde « votre majesté ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-10",
+      "category": "GAGE",
+      "number": 10,
+      "text": "Salue par une révérence toute personne qui te parle.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-11",
+      "category": "GAGE",
+      "number": 11,
+      "text": "Lève le petit doigt chaque fois que tu bois.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-12",
+      "category": "GAGE",
+      "number": 12,
+      "text": "Applaudis discrètement chaque fois que Sonia termine une phrase.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-13",
+      "category": "GAGE",
+      "number": 13,
+      "text": "Fais un clin d'œil chaque fois que tu prononces un prénom.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-14",
+      "category": "GAGE",
+      "number": 14,
+      "text": "Fais un salut militaire dès que quelqu'un dit « Sonia ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-15",
+      "category": "GAGE",
+      "number": 15,
+      "text": "Change de place dès que quelqu'un dit ton prénom.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-16",
+      "category": "GAGE",
+      "number": 16,
+      "text": "Fais un pouce levé chaque fois qu'on te pose une question.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-17",
+      "category": "GAGE",
+      "number": 17,
+      "text": "Mime une photo dès que quelqu'un dit « anniversaire ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-18",
+      "category": "GAGE",
+      "number": 18,
+      "text": "Fais une révérence chaque fois que Sonia te parle.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-19",
+      "category": "GAGE",
+      "number": 19,
+      "text": "Comporte-toi comme une star en pleine interview.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-20",
+      "category": "GAGE",
+      "number": 20,
+      "text": "Parle comme un commentateur sportif.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-21",
+      "category": "GAGE",
+      "number": 21,
+      "text": "Comporte-toi comme un aristocrate très snob.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-22",
+      "category": "GAGE",
+      "number": 22,
+      "text": "Parle comme un robot.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-23",
+      "category": "GAGE",
+      "number": 23,
+      "text": "Comporte-toi comme un enfant surexcité.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-24",
+      "category": "GAGE",
+      "number": 24,
+      "text": "Joue un serveur beaucoup trop serviable.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-25",
+      "category": "GAGE",
+      "number": 25,
+      "text": "Comporte-toi comme un candidat de téléréalité.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-26",
+      "category": "GAGE",
+      "number": 26,
+      "text": "Parle comme un professeur qui explique tout.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-27",
+      "category": "GAGE",
+      "number": 27,
+      "text": "Choisis un joueur : appelez-vous mutuellement « chef ».",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-28",
+      "category": "GAGE",
+      "number": 28,
+      "text": "Choisis un joueur : vous devez vous vouvoyer.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-29",
+      "category": "GAGE",
+      "number": 29,
+      "text": "Demande l'autorisation à ton voisin avant de parler, pendant deux tours.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-30",
+      "category": "GAGE",
+      "number": 30,
+      "text": "Choisis un joueur qui devient ton porte-parole.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-31",
+      "category": "GAGE",
+      "number": 31,
+      "text": "Choisis un joueur : saluez-vous à chaque rencontre.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-32",
+      "category": "GAGE",
+      "number": 32,
+      "text": "Trois joueurs te proposent un surnom. Sonia choisit lequel garder.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-33",
+      "category": "GAGE",
+      "number": 33,
+      "text": "Présente-toi à chaque nouvelle conversation comme à un inconnu.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-34",
+      "category": "GAGE",
+      "number": 34,
+      "text": "Choisis un joueur : parlez comme si vous étiez en pleine dispute.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-35",
+      "category": "GAGE",
+      "number": 35,
+      "text": "Remercie Sonia chaque fois qu'elle prend la parole.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-36",
+      "category": "GAGE",
+      "number": 36,
+      "text": "Fais lever les deux bras à un joueur sans le lui demander.",
+      "secret_mission": true
+    },
+    {
+      "id": "gage-37",
+      "category": "GAGE",
+      "number": 37,
+      "text": "Convaincs un joueur de changer de place sans lui dire pourquoi.",
+      "secret_mission": true
+    },
+    {
+      "id": "gage-38",
+      "category": "GAGE",
+      "number": 38,
+      "text": "Fais dire « chaussette » à Sonia.",
+      "secret_mission": true
+    },
+    {
+      "id": "gage-39",
+      "category": "GAGE",
+      "number": 39,
+      "text": "Obtiens une poignée de main spontanée d'un joueur.",
+      "secret_mission": true
+    },
+    {
+      "id": "gage-40",
+      "category": "GAGE",
+      "number": 40,
+      "text": "Fais applaudir trois joueurs sans leur demander d'applaudir.",
+      "secret_mission": true
+    },
+    {
+      "id": "gage-41",
+      "category": "GAGE",
+      "number": 41,
+      "text": "Fais-toi donner un surnom sans le demander directement.",
+      "secret_mission": true
+    },
+    {
+      "id": "gage-42",
+      "category": "GAGE",
+      "number": 42,
+      "text": "Pendant une minute, traite un objet comme ton meilleur ami.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-43",
+      "category": "GAGE",
+      "number": 43,
+      "text": "Pendant une minute, réagis à tout comme à une révélation incroyable.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-44",
+      "category": "GAGE",
+      "number": 44,
+      "text": "Donne un prénom à un objet et présente-le au groupe.",
+      "secret_mission": false
+    },
+    {
+      "id": "gage-45",
+      "category": "GAGE",
+      "number": 45,
+      "text": "Pendant 30 secondes, fais semblant d'être invisible.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-01",
+      "category": "SONIA",
+      "number": 1,
+      "text": "Raconte ton premier souvenir avec Sonia.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-02",
+      "category": "SONIA",
+      "number": 2,
+      "text": "Raconte ton meilleur souvenir de soirée avec Sonia.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-03",
+      "category": "SONIA",
+      "number": 3,
+      "text": "Raconte une anecdote embarrassante sur Sonia.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-04",
+      "category": "SONIA",
+      "number": 4,
+      "text": "Quel est ton souvenir le plus drôle avec Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-05",
+      "category": "SONIA",
+      "number": 5,
+      "text": "Raconte un moment où Sonia t'a surpris.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-06",
+      "category": "SONIA",
+      "number": 6,
+      "text": "Quelle est la pire idée que Sonia ait eue ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-07",
+      "category": "SONIA",
+      "number": 7,
+      "text": "Raconte une fois où Sonia t'a fait rire aux larmes.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-08",
+      "category": "SONIA",
+      "number": 8,
+      "text": "Raconte une situation où Sonia t'a sauvé la mise.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-09",
+      "category": "SONIA",
+      "number": 9,
+      "text": "Quel est le plus gros défaut de Sonia, selon elle ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-10",
+      "category": "SONIA",
+      "number": 10,
+      "text": "Quel est le plat préféré de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-11",
+      "category": "SONIA",
+      "number": 11,
+      "text": "Quelle célébrité Sonia aimerait-elle rencontrer ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-12",
+      "category": "SONIA",
+      "number": 12,
+      "text": "Quel est le film ou la série préféré de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-13",
+      "category": "SONIA",
+      "number": 13,
+      "text": "Quel est le rêve de voyage de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-14",
+      "category": "SONIA",
+      "number": 14,
+      "text": "Quelle est la plus grande peur de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-15",
+      "category": "SONIA",
+      "number": 15,
+      "text": "Quel métier Sonia aurait-elle aimé exercer ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-16",
+      "category": "SONIA",
+      "number": 16,
+      "text": "Quel est le plus grand plaisir coupable de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-17",
+      "category": "SONIA",
+      "number": 17,
+      "text": "Quel surnom Sonia déteste-t-elle le plus ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-18",
+      "category": "SONIA",
+      "number": 18,
+      "text": "Si Sonia était un animal, lequel serait-elle ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-19",
+      "category": "SONIA",
+      "number": 19,
+      "text": "Quel superpouvoir irait le mieux à Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-20",
+      "category": "SONIA",
+      "number": 20,
+      "text": "Quel titre donnerais-tu à la biographie de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-21",
+      "category": "SONIA",
+      "number": 21,
+      "text": "Quel métier improbable Sonia pourrait-elle réussir ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-22",
+      "category": "SONIA",
+      "number": 22,
+      "text": "Quelle émission de téléréalité Sonia pourrait-elle gagner ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-23",
+      "category": "SONIA",
+      "number": 23,
+      "text": "Quel est le plus gros défaut de Sonia ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-24",
+      "category": "SONIA",
+      "number": 24,
+      "text": "Quelle célébrité pourrait jouer Sonia dans un film ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-25",
+      "category": "SONIA",
+      "number": 25,
+      "text": "Si Sonia devenait présidente, quelle serait sa première loi ?",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-26",
+      "category": "SONIA",
+      "number": 26,
+      "text": "Fais un duel de grimaces avec Sonia. Le groupe vote.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-27",
+      "category": "SONIA",
+      "number": 27,
+      "text": "Imite Sonia. Elle doit deviner ce que tu caricatures.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-28",
+      "category": "SONIA",
+      "number": 28,
+      "text": "Fais deviner une chanson à Sonia en la fredonnant.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-29",
+      "category": "SONIA",
+      "number": 29,
+      "text": "Défie Sonia à un pierre-feuille-ciseaux en 3 manches.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-30",
+      "category": "SONIA",
+      "number": 30,
+      "text": "Défie Sonia au concours de regard. Le premier qui rit perd.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-31",
+      "category": "SONIA",
+      "number": 31,
+      "text": "Fais une publicité pour Sonia comme un produit révolutionnaire.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-32",
+      "category": "SONIA",
+      "number": 32,
+      "text": "Pose trois questions à Sonia. Elle répond en un mot à chacune.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-33",
+      "category": "SONIA",
+      "number": 33,
+      "text": "Sonia choisit un joueur qui avance d'une case.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-34",
+      "category": "SONIA",
+      "number": 34,
+      "text": "Sonia échange la place de deux joueurs sur le plateau.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-35",
+      "category": "SONIA",
+      "number": 35,
+      "text": "Sonia désigne un joueur qui rejoue immédiatement.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-36",
+      "category": "SONIA",
+      "number": 36,
+      "text": "Sonia choisit un joueur qui tire une carte Défi.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-37",
+      "category": "SONIA",
+      "number": 37,
+      "text": "Sonia désigne un joueur qui recule de deux cases.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-38",
+      "category": "SONIA",
+      "number": 38,
+      "text": "Sonia choisit un joueur qui avance de trois cases.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-39",
+      "category": "SONIA",
+      "number": 39,
+      "text": "Sonia peut annuler la prochaine sanction d'un joueur.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-40",
+      "category": "SONIA",
+      "number": 40,
+      "text": "Tous les joueurs changent de place autour de la table, sauf Sonia !",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-41",
+      "category": "SONIA",
+      "number": 41,
+      "text": "Chacun dit un mot pour décrire Sonia, sans doublon.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-42",
+      "category": "SONIA",
+      "number": 42,
+      "text": "Le groupe invente un nouveau surnom pour Sonia.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-43",
+      "category": "SONIA",
+      "number": 43,
+      "text": "Chacun donne une qualité de Sonia, sans répétition.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-44",
+      "category": "SONIA",
+      "number": 44,
+      "text": "Chacun propose une chanson qui représente Sonia.",
+      "secret_mission": false
+    },
+    {
+      "id": "sonia-45",
+      "category": "SONIA",
+      "number": 45,
+      "text": "Chacun prédit quelque chose d'amusant sur le futur de Sonia.",
+      "secret_mission": false
+    }
+  ]
+}

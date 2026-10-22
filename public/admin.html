@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#6b1420">
+<title>Admin Sogne</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { padding-bottom: 40px; }
+  .sec { margin: 14px 0; }
+  .sec h3 { font: 400 20px/1.1 'Abril', serif; color: var(--bordeaux); margin-bottom: 8px; }
+  .bigbtn { width: 100%; border: 3px solid var(--bordeaux); background: var(--bordeaux); color: #fff; border-radius: 20px; padding: 18px; font: 400 22px/1.1 'Abril', serif; }
+  .bigbtn.stop { background: #fff; color: var(--bordeaux); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(107,20,32,.12); font-size: 14px; }
+  .row:last-child { border-bottom: 0; }
+  .num { font: 400 22px 'Rozha', serif; color: var(--bordeaux); min-width: 34px; text-align: right; }
+  label { display: block; font-size: 12px; font-weight: 700; color: var(--bordeaux); margin: 10px 0 3px; text-transform: uppercase; letter-spacing: .04em; }
+  input[type=text], input[type=password], textarea { width: 100%; font: inherit; padding: 10px 12px; border: 2px solid var(--bordeaux); border-radius: 12px; background: #fff; }
+  textarea { min-height: 70px; resize: vertical; }
+  .log { font-size: 12.5px; color: var(--muted); }
+  .qr { display: grid; place-items: center; padding: 10px; }
+  .qr canvas { width: min(70vw, 300px); height: auto; image-rendering: pixelated; border: 3px solid var(--bordeaux); border-radius: 14px; background: #fff; padding: 10px; }
+  .pillrow { display: flex; gap: 6px; flex-wrap: wrap; }
+  .state { font-size: 13px; color: var(--muted); }
+  .warn { background: var(--yellow); border-radius: 10px; padding: 8px 10px; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header class="hero"><div class="when">Administration</div><h1 style="font-size:clamp(32px,10vw,48px)">SOGNE</h1><span class="script" style="font-size:clamp(44px,14vw,64px)">admin</span></header>
+<main class="wrap">
+  <div class="frame" id="login">
+    <h2>Accès organisateur</h2>
+    <label for="pin">Code</label>
+    <input type="password" id="pin" autocomplete="current-password" placeholder="Code admin">
+    <p id="lerr" class="muted" style="color:#b00020;min-height:20px"></p>
+    <button class="btn primary" id="lbtn" type="button" style="width:100%">Entrer</button>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="frame sec">
+      <h3>Numéros</h3>
+      <p class="state" id="numstate"></p>
+      <button class="bigbtn" id="numbtn2" type="button">Lancer un tour de numéros</button>
+      <div class="warn hidden" id="numwarn"></div>
+      <div id="players" style="margin-top:12px"></div>
+    </div>
+
+    <div class="frame sec">
+      <h3>Piles de cartes</h3>
+      <div id="piles"></div>
+      <div class="btnrow"><button class="btn" id="reshuffle-all" type="button">Remélanger toutes les piles</button><button class="btn" id="reset" type="button">Tout réinitialiser</button></div>
+    </div>
+
+    <div class="frame sec">
+      <h3>Infos pratiques (onglet Maison)</h3>
+      <div id="infoform"></div>
+      <div class="btnrow"><button class="btn primary" id="infosave" type="button">Enregistrer</button></div>
+      <p class="state" id="infomsg"></p>
+    </div>
+
+    <div class="frame sec">
+      <h3>QR code du site</h3>
+      <p class="state" id="qrurl"></p>
+      <div class="qr"><canvas id="qr" width="600" height="600"></canvas></div>
+      <div class="btnrow"><button class="btn primary" id="qrdl" type="button">Télécharger le QR (PNG)</button><button class="btn" id="qrcopy" type="button">Copier le lien</button></div>
+    </div>
+
+    <div class="frame sec">
+      <h3>Derniers tirages</h3>
+      <div id="log" class="log"></div>
+    </div>
+  </div>
+</main>
+<script src="vendor/qrcode.js"></script>
+<script>
+'use strict';
+(function () {
+  const $ = (s) => document.querySelector(s);
+  const LABEL = { defi: 'Défi', verite: 'Vérité', duel: 'Duel', gage: 'Gage', sonia: 'Sogne' };
+  let token = null; try { token = sessionStorage.getItem('adm'); } catch (e) {}
+  let timer = null;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  async function api(path, body) {
+    const r = await fetch(path, { method: body === undefined ? 'GET' : 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-token': token || '' }, body: body === undefined ? undefined : JSON.stringify(body) });
+    if (r.status === 401 && path !== '/api/admin/login') { logout(); throw new Error('401'); }
+    const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j;
+  }
+  function logout() { token = null; try { sessionStorage.removeItem('adm'); } catch (e) {} clearInterval(timer); $('#panel').classList.add('hidden'); $('#login').classList.remove('hidden'); }
+  async function login() {
+    $('#lerr').textContent = '';
+    try { const r = await api('/api/admin/login', { pin: $('#pin').value }); token = r.token; try { sessionStorage.setItem('adm', token); } catch (e) {} start(); }
+    catch (e) { $('#lerr').textContent = e.message === '401' ? '' : (e.message || 'Erreur'); }
+  }
+  $('#lbtn').addEventListener('click', login);
+  $('#pin').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+
+  let infoLoaded = false;
+  const FIELDS = [['address', 'Adresse'], ['arrival', 'Arrivée'], ['departure', 'Départ'], ['accessFoot', 'Accès à pied'], ['accessCar', 'Accès en voiture'], ['keyCode', 'Code de la boîte à clés'], ['wifiName', 'Wifi : nom du réseau'], ['wifiPass', 'Wifi : mot de passe'], ['notes', 'Notes (affichées dans l\'onglet Maison)']];
+  function renderInfo(info) {
+    if (infoLoaded) return; infoLoaded = true;
+    $('#infoform').innerHTML = FIELDS.map(([k, l]) => `<label for="f-${k}">${l}</label>${['accessFoot', 'accessCar', 'notes'].includes(k) ? `<textarea id="f-${k}">${esc(info[k] || '')}</textarea>` : `<input type="text" id="f-${k}" value="${esc(info[k] || '')}">`}`).join('');
+  }
+  $('#infosave').addEventListener('click', async () => {
+    const b = {}; FIELDS.forEach(([k]) => { b[k] = $('#f-' + k).value; });
+    try { await api('/api/admin/info', b); $('#infomsg').textContent = 'Enregistré : visible tout de suite sur les téléphones.'; } catch (e) { $('#infomsg').textContent = 'Erreur : ' + e.message; }
+  });
+
+  function render(s) {
+    renderInfo(s.info);
+    const on = s.numbers.active;
+    $('#numstate').textContent = on ? `Tour de numéros n°${s.numbers.round} en cours.` : `Aucun tour en cours (${s.numbers.round} déjà lancé${s.numbers.round > 1 ? 's' : ''}).`;
+    $('#numbtn2').textContent = on ? 'Terminer le tour de numéros' : 'Lancer un tour de numéros';
+    $('#numbtn2').classList.toggle('stop', on);
+    const n = s.players.length;
+    $('#players').innerHTML = (n ? `<p class="state"><b>${n}</b> téléphone${n > 1 ? 's' : ''} connecté${n > 1 ? 's' : ''}</p>` : '<p class="state">Aucun téléphone connecté.</p>') +
+      s.players.slice().sort((a, b) => (a.number ?? 99) - (b.number ?? 99)).map((p) => `<div class="row"><span>${esc(p.name || 'Sans prénom')}</span><span class="num">${p.number ?? ''}</span></div>`).join('');
+    $('#piles').innerHTML = Object.keys(LABEL).map((k) => `<div class="row"><span><b>${LABEL[k]}</b> : ${s.counts[k]} carte${s.counts[k] > 1 ? 's' : ''} sur 48${s.reshuffles && s.reshuffles[k] ? ` (remélangée ${s.reshuffles[k]} fois)` : ''}</span><button class="btn small" data-rs="${k}" type="button">Remélanger</button></div>`).join('');
+    document.querySelectorAll('[data-rs]').forEach((b) => b.addEventListener('click', async () => { await api('/api/admin/reshuffle', { pile: b.dataset.rs }); poll(); }));
+    $('#log').innerHTML = s.log.length ? s.log.map((l) => `<div class="row"><span>${esc(l.name || 'Sans prénom')} : ${LABEL[l.pile] || l.pile} ${esc(l.id.replace(/^[a-z]+-/, ''))}${l.extra ? ` <i>(${esc(l.extra)})</i>` : ''}</span><span>${new Date(l.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span></div>`).join('') : '<p class="state">Rien pour le moment.</p>';
+  }
+  async function poll() { try { render(await api('/api/admin/state')); } catch (e) { /* ignore */ } }
+  $('#numbtn2').addEventListener('click', async () => {
+    const on = $('#numbtn2').classList.contains('stop');
+    const r = await api(on ? '/api/admin/numbers/stop' : '/api/admin/numbers/start', {});
+    const w = $('#numwarn');
+    if (!on && r.unassigned > 0) { w.textContent = `${r.unassigned} téléphone(s) n'ont pas de numéro (il n'y a que 15 numéros).`; w.classList.remove('hidden'); } else w.classList.add('hidden');
+    render(r);
+  });
+  $('#reshuffle-all').addEventListener('click', async () => { if (confirm('Remélanger toutes les piles ?')) { await api('/api/admin/reshuffle', { pile: 'all' }); poll(); } });
+  $('#reset').addEventListener('click', async () => { if (confirm('Réinitialiser les 5 piles et les numéros ? (les infos de la maison sont conservées)')) { await api('/api/admin/reset', {}); poll(); } });
+
+  // QR code
+  function drawQR() {
+    const url = location.origin + '/';
+    $('#qrurl').textContent = url;
+    const q = qrcode(0, 'M'); q.addData(url); q.make();
+    const n = q.getModuleCount(); const cv = $('#qr'); const ctx = cv.getContext('2d');
+    const margin = 2, cell = Math.floor(cv.width / (n + margin * 2));
+    const size = cell * (n + margin * 2); cv.width = size; cv.height = size;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size); ctx.fillStyle = '#6b1420';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect((c + margin) * cell, (r + margin) * cell, cell, cell);
+  }
+  $('#qrdl').addEventListener('click', () => { const a = document.createElement('a'); a.download = 'sogne-birthday-qr.png'; a.href = $('#qr').toDataURL('image/png'); a.click(); });
+  $('#qrcopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.origin + '/'); } catch (e) {} });
+
+  function start() {
+    $('#login').classList.add('hidden'); $('#panel').classList.remove('hidden');
+    infoLoaded = false; drawQR(); poll(); clearInterval(timer); timer = setInterval(poll, 2000);
+  }
+  if (token) { api('/api/admin/state').then(() => start()).catch(() => logout()); }
+})();
+</script>
+</body>
+</html>

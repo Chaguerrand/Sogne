@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="theme-color" content="#6b1420">
+<meta name="format-detection" content="telephone=no">
+<title>Sogne Birthday</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236b1420'/%3E%3Cpath d='M12 44 L16 22 L26 32 L32 18 L38 32 L48 22 L52 44 Z' fill='%23fde9a4'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/rozha-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/abril-fatface-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="jester" viewBox="0 0 100 100">
+    <path d="M18 58 C10 54 2 48 4 36 C12 42 22 42 32 38 C34 26 42 14 50 6 C58 14 66 26 68 38 C78 42 88 42 96 36 C98 48 90 54 82 58 Z" fill="currentColor"/>
+    <circle cx="5" cy="34" r="6" fill="currentColor"/><circle cx="50" cy="5" r="6" fill="currentColor"/><circle cx="95" cy="34" r="6" fill="currentColor"/>
+    <rect x="14" y="56" width="72" height="8" rx="4" fill="currentColor"/>
+    <circle cx="50" cy="80" r="17" fill="#fff" stroke="currentColor" stroke-width="5"/>
+    <circle cx="44" cy="77" r="2.4" fill="currentColor"/><circle cx="56" cy="77" r="2.4" fill="currentColor"/>
+    <path d="M42 84 Q50 92 58 84" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div id="offline" class="offline-banner hidden">Pas de réseau : les tirages se font en local (des doublons sont possibles).</div>
+
+<header class="hero">
+  <div class="when">Week-end 30 - 31 octobre 2026</div>
+  <h1>SOGNE</h1>
+  <span class="script">birthday</span>
+  <div class="hello" id="hello"></div>
+</header>
+
+<main class="wrap">
+  <!-- CARTES -->
+  <section id="view-cards" class="view">
+    <div class="frame">
+      <h2>Les cartes</h2>
+      <p class="sub">Touche une pile pour tirer une carte.</p>
+      <div class="piles" id="piles"></div>
+      <div class="recent hidden" id="recent"><h3>Mes dernières cartes</h3><div class="recent-list" id="recent-list"></div></div>
+    </div>
+    <p class="footer"><span class="badge-online" id="online"><i></i><span>connexion...</span></span></p>
+  </section>
+
+  <!-- REGLES -->
+  <section id="view-rules" class="view hidden">
+    <div class="frame">
+      <h2>Règles du jeu</h2>
+      <p class="sub">Livret de règles</p>
+      <div id="rules"></div>
+    </div>
+  </section>
+
+  <!-- PROGRAMME -->
+  <section id="view-prog" class="view hidden">
+    <div class="frame">
+      <h2>Programme</h2>
+      <p class="sub" style="font-family:'Script',cursive;font-size:34px;line-height:.8;margin-bottom:18px;color:var(--ink)">du fun</p>
+      <div id="prog"></div>
+      <p class="footer" style="letter-spacing:.06em">LE PLOYRON<br>SOGNE BIRTHDAY</p>
+    </div>
+  </section>
+
+  <!-- MAISON -->
+  <section id="view-house" class="view hidden">
+    <div class="frame">
+      <h2>La maison</h2>
+      <p class="sub">Le Ployron</p>
+      <div id="house"></div>
+    </div>
+  </section>
+</main>
+
+<div class="dock hidden" id="dock"></div>
+<button class="numbtn hidden" id="numbtn" type="button">Mon numéro</button>
+
+<nav class="nav" id="nav" aria-label="Navigation">
+  <button data-tab="cards" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="13" height="17" rx="2.5"/><path d="M3 7v12a2 2 0 0 0 2 2h9" stroke-linecap="round"/></svg><span>Cartes</span></button>
+  <button data-tab="rules" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1.500V19c3-.5 6 0 8 1.500 2-1.500 5-2 8-1.500V4.500C17 4 14 4.500 12 6z"/><path d="M12 6v14.500"/></svg><span>Règles</span></button>
+  <button data-tab="prog" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg><span>Programme</span></button>
+  <button data-tab="house" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3.500 11 12 4l8.500 7M6 9.500V20h12V9.500"/><path d="M10 20v-5.500h4V20"/></svg><span>Maison</span></button>
+</nav>
+
+<div id="layer"></div>
+
+<script src="engine.js"></script>
+<script src="rules.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

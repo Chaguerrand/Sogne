@@ -1,0 +1,9 @@
+{
+  "name": "Sogne Birthday",
+  "short_name": "Sogne",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6b1420",
+  "lang": "fr"
+}

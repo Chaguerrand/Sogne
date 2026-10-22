@@ -1,0 +1,9 @@
+{
+  "name": "sogne-birthday",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site compagnon du jeu d'anniversaire de Sogne : règles, pioche partagée, numéros, programme.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "build:cards": "node scripts/build-cards.js" },
+  "engines": { "node": ">=18" }
+}
