@@ -307,8 +307,43 @@
     await revealCard(o, card, { ...opts, fast: true });
   }
 
+  // ---------- Chrono (durée détectée dans le texte de la carte) ----------
+  function durationOf(card) {
+    if (!card || card.secret || card.kind === 'joker' || !card.text || /hésitation/i.test(card.text)) return 0;
+    const m = card.text.match(/(\d+)\s*secondes?/i);
+    if (m) return +m[1];
+    if (/\b(une|1)\s*minute\b/i.test(card.text)) return 60;
+    return 0;
+  }
+  function beep() {
+    try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) {}
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      const ctx = new AC();
+      [0, 0.32, 0.64].forEach((t, i) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = i === 2 ? 1046 : 784; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.0001, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + (i === 2 ? 0.6 : 0.22)); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.7); });
+      setTimeout(() => ctx.close && ctx.close(), 1600);
+    } catch (e) {}
+  }
+  function chronoAction(card) {
+    const s = durationOf(card); if (!s) return null;
+    const label = s >= 60 ? `Lancer le chrono : ${s / 60 === 1 ? '1 min' : s + ' s'}` : `Lancer le chrono : ${s} s`;
+    let iv = null;
+    return { label, cls: 'chrono', run: (b) => {
+      if (iv) { clearInterval(iv); iv = null; b.classList.remove('run', 'done'); b.textContent = label; return; }
+      const end = Date.now() + s * 1000; b.classList.remove('done'); b.classList.add('run');
+      const tick = () => {
+        if (!b.isConnected) { clearInterval(iv); iv = null; return; }
+        const left = Math.ceil((end - Date.now()) / 1000);
+        if (left <= 0) { clearInterval(iv); iv = null; b.classList.remove('run'); b.classList.add('done'); b.textContent = 'Temps écoulé ! (toucher pour relancer)'; beep(); return; }
+        b.textContent = left + ' s  (toucher pour arrêter)';
+      };
+      tick(); iv = setInterval(tick, 250);
+    } };
+  }
+
   function finalActions(o, card, extra) {
     const acts = [];
+    const ch = chronoAction(card); if (ch) acts.push(ch);
     if (card.secret) {
       let shown = false;
       acts.push({ label: 'Afficher ma mission', cls: 'primary', run: (b) => {
@@ -409,6 +444,7 @@
     draw();
     const o = { actions: $('.ov-actions', ov) };
     const acts = [];
+    const ch = chronoAction(card); if (ch) acts.push(ch);
     if (card.secret) acts.push({ label: hidden ? 'Afficher ma mission' : 'Masquer ma mission', cls: 'primary', run: (b) => { hidden = !hidden; draw(); b.textContent = hidden ? 'Afficher ma mission' : 'Masquer ma mission'; } });
     if (opts.endable) acts.push({ label: 'C\'est terminé (mon tour est passé)', cls: card.secret ? 'ghost' : 'primary', run: () => { clearActive(); closeLayer(); toast('Gage terminé'); } });
     acts.push({ label: 'Fermer', cls: 'ghost', run: closeLayer });

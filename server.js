@@ -28,23 +28,49 @@ let state = null;
 function freshState() {
   return { engine: Engine.newState(DATA), info: { ...DEFAULT_INFO }, numbers: { active: false, round: 0, assigned: {} }, log: [] };
 }
-function loadState() {
+// Persistance : Postgres si DATABASE_URL est défini (survit aux redémarrages de Render), sinon fichier local.
+let pool = null;
+if (process.env.DATABASE_URL) {
   try {
-    const s = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-    const base = freshState();
-    state = { ...base, ...s, info: { ...base.info, ...(s.info || {}) } };
-    // cohérence : toutes les piles présentes
-    for (const p of DATA.piles) if (!state.engine.piles[p.id]) state.engine.piles[p.id] = Engine.newPile(DATA.cards, p.id);
-  } catch (e) { state = freshState(); }
+    const { Pool } = require('pg');
+    const u = process.env.DATABASE_URL;
+    pool = new Pool({ connectionString: u, max: 3, connectionTimeoutMillis: 8000, ssl: /\.render\.com/.test(u) ? { rejectUnauthorized: false } : undefined });
+    pool.on('error', (e) => console.warn('pg:', e.message));
+  } catch (e) { console.warn('Module pg indisponible, sauvegarde sur fichier.', e.message); pool = null; }
+}
+let persist = { mode: pool ? 'db' : 'fichier', lastOk: null, lastError: null };
+function adopt(s) {
+  const base = freshState();
+  state = { ...base, ...s, info: { ...base.info, ...(s.info || {}) } };
+  // cohérence : toutes les piles présentes
+  for (const p of DATA.piles) if (!state.engine.piles[p.id]) state.engine.piles[p.id] = Engine.newPile(DATA.cards, p.id);
+}
+async function loadState() {
+  state = null;
+  if (pool) {
+    try {
+      await pool.query('CREATE TABLE IF NOT EXISTS kv (k text PRIMARY KEY, v jsonb NOT NULL, updated timestamptz NOT NULL DEFAULT now())');
+      const r = await pool.query("SELECT v FROM kv WHERE k = 'state'");
+      if (r.rows[0]) { adopt(r.rows[0].v); console.log('État restauré depuis la base.'); }
+      persist.lastOk = Date.now();
+    } catch (e) { persist.lastError = e.message; console.warn('Lecture base impossible:', e.message); }
+  }
+  if (!state) {
+    try { adopt(JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'))); } catch (e) { state = freshState(); }
+  }
 }
 let saveTimer = null;
 function save() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(STATE_FILE, JSON.stringify(state)); } catch (e) { /* best effort */ }
+  saveTimer = setTimeout(async () => {
+    const json = JSON.stringify(state);
+    try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(STATE_FILE, json); } catch (e) { /* best effort */ }
+    if (pool) {
+      try { await pool.query("INSERT INTO kv (k, v) VALUES ('state', $1::jsonb) ON CONFLICT (k) DO UPDATE SET v = EXCLUDED.v, updated = now()", [json]); persist.lastOk = Date.now(); persist.lastError = null; }
+      catch (e) { persist.lastError = e.message; console.warn('Sauvegarde base impossible:', e.message); }
+    }
   }, 400);
 }
-loadState();
 
 // ---- Présence (SSE) ----
 const clients = new Map(); // deviceId -> { res, name, since }
@@ -73,6 +99,7 @@ function adminState() {
   return {
     counts: Engine.counts(state.engine), reshuffles: state.engine.reshuffles, info: state.info,
     numbers: { active: state.numbers.active, round: state.numbers.round }, players, log: state.log.slice(-20).reverse(),
+    persist: { mode: persist.mode, ok: !persist.lastError, error: persist.lastError || '', lastOk: persist.lastOk },
   };
 }
 
@@ -209,9 +236,9 @@ function serveStatic(req, res, url) {
   });
 }
 
-http.createServer((req, res) => {
+loadState().then(() => http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   if (url.pathname.startsWith('/api/')) return api(req, res, url).catch((e) => { console.error(e); json(res, 500, { error: 'erreur' }); });
   if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'method', { 'Content-Type': 'text/plain' });
   serveStatic(req, res, url);
-}).listen(PORT, () => console.log(`Sogne Birthday sur http://localhost:${PORT}  (admin: /admin)`));
+}).listen(PORT, () => console.log(`Sogne Birthday sur http://localhost:${PORT}  (admin: /admin, sauvegarde: ${persist.mode})`)));

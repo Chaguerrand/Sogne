@@ -361,3 +361,8 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .tear { position: fixed; inset: 0; z-index: 100; pointer-events: none; overflow: hidden; }
 .tear-bg { position: absolute; inset: 0; background: rgba(36,18,22,.62); }
 .tear-piece { position: fixed; filter: drop-shadow(0 5px 7px rgba(36,18,22,.45)); will-change: transform, opacity; }
+
+.btn.chrono { background: var(--yellow); color: var(--ink); border: 2.5px solid var(--bordeaux); }
+.btn.chrono.run { background: #fff; color: var(--bordeaux); font-variant-numeric: tabular-nums; }
+.btn.chrono.done { background: var(--bordeaux); color: #fff; animation: pulse .5s ease-in-out 6; }
+@keyframes pulse { 50% { transform: scale(1.04); } }

@@ -47,3 +47,7 @@ l'état des piles repart de zéro (nouveau mélange complet) et il faut se recon
 `scripts/source-cards.json` contient les 225 cartes d'origine. `npm run build:cards` régénère `public/cards.json`
 (corrections validées : Gage 2 et 29 sur un tour, Duel 5 harmonisé, "Sonia" affiché "Sogne", précisions du livret).
 Le texte historique est conservé dans le champ `source_text`.
+
+## Sauvegarde des piles
+
+Sans `DATABASE_URL`, l'état est écrit dans `data/state.json` (perdu à chaque redémarrage sur Render gratuit). Avec `DATABASE_URL` (Postgres, URL interne de la base Render), l'état est restauré au démarrage. La page `/admin` indique le mode de sauvegarde actif.
