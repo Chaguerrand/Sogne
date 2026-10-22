@@ -104,7 +104,7 @@
     if (card.secret && opts.hidden) {
       return `${head}<div class="cbody"><div class="hidden-mission"><svg viewBox="0 0 100 100"><use href="#jester"/></svg><p>Ta mission est secrète. Touche « Afficher » pour la lire, puis cache-la.</p></div></div>`;
     }
-    const precs = card.precisions && card.precisions.length ? `<div class="precs"><b>Précisions</b>${card.precisions.map((p) => `<p>${esc(p)}</p>`).join('')}</div>` : '';
+    const precs = card.precisions && card.precisions.length ? `<div class="precs">${card.precisions.map((p) => `<p>${esc(p)}</p>`).join('')}</div>` : '';
     return `${head}<div class="cbody"><img class="emb" alt="" src="img/emb_${card.pile}.webp"><div class="txt ${sizeClass(card.text)}">${esc(card.text)}</div>${precs}</div>`;
   }
   function faceClass(card) { return card.kind === 'joker' ? 'joker' : card.secret ? 'c-secret' : 'c-' + card.pile; }
@@ -425,7 +425,7 @@
     S.data.cards.forEach((c) => S.byId.set(c.id, c));
     Engine.newState(S.data); // validation
     renderPiles(); renderRules(); renderProg(); renderHouse(); renderRecent(); renderDock(); renderHello(); renderOnline();
-    showTab(ls.get('tab', 'cards'));
+    showTab('prog');
     connect();
     if (!ls.get('nameAsked', false)) setTimeout(askName, 700);
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

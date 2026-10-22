@@ -37,7 +37,7 @@
 
 <main class="wrap">
   <!-- CARTES -->
-  <section id="view-cards" class="view">
+  <section id="view-cards" class="view hidden">
     <div class="frame">
       <h2>Les cartes</h2>
       <p class="sub">Touche une pile pour tirer une carte.</p>
@@ -57,7 +57,7 @@
   </section>
 
   <!-- PROGRAMME -->
-  <section id="view-prog" class="view hidden">
+  <section id="view-prog" class="view">
     <div class="frame">
       <h2>Programme</h2>
       <p class="sub" style="font-family:'Script',cursive;font-size:34px;line-height:.8;margin-bottom:18px;color:var(--ink)">du fun</p>
@@ -80,9 +80,9 @@
 <button class="numbtn hidden" id="numbtn" type="button">Mon numéro</button>
 
 <nav class="nav" id="nav" aria-label="Navigation">
-  <button data-tab="cards" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="13" height="17" rx="2.5"/><path d="M3 7v12a2 2 0 0 0 2 2h9" stroke-linecap="round"/></svg><span>Cartes</span></button>
+  <button data-tab="prog" class="on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg><span>Programme</span></button>
+  <button data-tab="cards" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="13" height="17" rx="2.5"/><path d="M3 7v12a2 2 0 0 0 2 2h9" stroke-linecap="round"/></svg><span>Cartes</span></button>
   <button data-tab="rules" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1.500V19c3-.5 6 0 8 1.500 2-1.500 5-2 8-1.500V4.500C17 4 14 4.500 12 6z"/><path d="M12 6v14.500"/></svg><span>Règles</span></button>
-  <button data-tab="prog" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg><span>Programme</span></button>
   <button data-tab="house" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3.500 11 12 4l8.500 7M6 9.500V20h12V9.500"/><path d="M10 20v-5.500h4V20"/></svg><span>Maison</span></button>
 </nav>
 

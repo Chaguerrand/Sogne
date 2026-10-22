@@ -193,8 +193,7 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .cbody img.emb { height: 74px; width: auto; max-width: 120px; object-fit: contain; flex: none; }
 .cbody .txt { font: 600 21px/1.28 'Inter', sans-serif; color: var(--ink); }
 .cbody .txt.long { font-size: 18px; }
-.precs { background: rgba(255,255,255,.7); border-radius: 12px; padding: 8px 10px; font-size: 12.5px; line-height: 1.35; text-align: left; color: #3a2a2e; width: 100%; max-height: 38%; overflow-y: auto; }
-.precs b { color: var(--bordeaux); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 2px; }
+.precs { font: 500 15px/1.35 'Inter', sans-serif; text-align: center; color: var(--ink); width: 100%; margin-top: 10px; max-height: 40%; overflow-y: auto; }
 .precs p { margin: 3px 0; }
 .joker-ico { width: 120px; height: 110px; color: var(--joker-red); }
 .jk-label { font: 400 30px/1 'Abril', serif; color: var(--joker-red); }
@@ -271,11 +270,10 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .ct .cc.secret-band svg { width: 8.5cqw; height: 8.5cqw; }
 .cbody { gap: 3.2cqw; }
 .cbody img.emb { height: 25cqw; max-width: 40cqw; }
-.cbody .txt { font-size: 7.6cqw; line-height: 1.24; }
-.cbody .txt.long { font-size: 6.5cqw; }
-.cbody .txt.xl { font-size: 5.7cqw; }
-.precs { font-size: 4.1cqw; border-radius: 3.5cqw; padding: 2.4cqw 3cqw; max-height: 40%; }
-.precs b { font-size: 3.3cqw; }
+.cbody .txt { font-size: 8.6cqw; line-height: 1.24; }
+.cbody .txt.long { font-size: 7.3cqw; }
+.cbody .txt.xl { font-size: 6.3cqw; }
+.precs { font-size: 5cqw; margin-top: 4.5cqw; max-height: 40%; }
 .joker-ico { width: 36cqw; height: 33cqw; }
 .jk-label { font-size: 9.2cqw; } .jk-kicker { font-size: 3.6cqw; } .jk-rule { font-size: 4.8cqw; }
 .hidden-mission svg { width: 23cqw; height: 23cqw; } .hidden-mission p { font-size: 4.2cqw; max-width: 70cqw; }
