@@ -325,6 +325,13 @@
     return 0;
   }
   // Son du chrono : un élément <audio> (WAV généré) joue même quand l'iPhone est en mode silencieux, contrairement à WebAudio.
+  // « Joyeux anniversaire » (domaine public) : [fréquence Hz, durée en temps]
+  const HAPPY_BIRTHDAY = [
+    [392, 0.75], [392, 0.25], [440, 1], [392, 1], [523, 1], [494, 2],
+    [392, 0.75], [392, 0.25], [440, 1], [392, 1], [587, 1], [523, 2],
+    [392, 0.75], [392, 0.25], [784, 1], [659, 1], [523, 1], [494, 1], [440, 2],
+    [698, 0.75], [698, 0.25], [659, 1], [523, 1], [587, 1], [523, 2],
+  ];
   let alarm = null;
   function makeWav(parts) {
     const rate = 22050; const total = parts.reduce((n, p) => n + Math.round(rate * p.d), 0);
@@ -333,13 +340,13 @@
     w(0, 'RIFF'); v.setUint32(4, 36 + total * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
     v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, total * 2, true);
     let o = 44;
-    parts.forEach((p) => { const n = Math.round(rate * p.d); for (let i = 0; i < n; i++) { const t = i / rate, env = p.f ? Math.min(1, t * 60, (p.d - t) * 25) : 0; v.setInt16(o, Math.sin(2 * Math.PI * p.f * t) * 0.9 * 32767 * Math.max(0, env), true); o += 2; } });
+    parts.forEach((p) => { const n = Math.round(rate * p.d); for (let i = 0; i < n; i++) { const t = i / rate, env = p.f ? Math.min(1, t * 60, (p.d - t) * 25) : 0; const ph = 2 * Math.PI * p.f * t; v.setInt16(o, (Math.sin(ph) + 0.35 * Math.sin(2 * ph) + 0.15 * Math.sin(3 * ph)) / 1.5 * 0.85 * 32767 * Math.max(0, env), true); o += 2; } });
     return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
   }
   function primeAlarm() {
     try {
       if (!alarm) {
-        alarm = { el: new Audio(), beep: makeWav([{ f: 880, d: 0.3 }, { f: 0, d: 0.12 }, { f: 880, d: 0.3 }, { f: 0, d: 0.12 }, { f: 1175, d: 0.3 }, { f: 0, d: 0.12 }, { f: 1175, d: 0.3 }, { f: 0, d: 0.12 }, { f: 1397, d: 0.7 }]), silent: makeWav([{ f: 0, d: 0.1 }]) };
+        alarm = { el: new Audio(), beep: makeWav(HAPPY_BIRTHDAY.map(([f, b]) => ({ f, d: b * 60 / 176 }))), silent: makeWav([{ f: 0, d: 0.1 }]) };
         alarm.el.setAttribute('playsinline', '');
       }
       alarm.el.src = alarm.silent; const pr = alarm.el.play(); if (pr && pr.catch) pr.catch(() => {});
