@@ -526,7 +526,8 @@
       ${secret('Code de la boîte à clés', i.keyCode)}
       ${secret('Wifi : ' + (i.wifiName || 'nom du réseau'), i.wifiPass ? i.wifiPass : '')}
       ${i.notes ? `<div class="info"><h4>À savoir</h4><p>${esc(i.notes).replace(/\n/g, '<br>')}</p></div>` : ''}
-      <div class="info"><h4>La maison</h4><p class="muted">D'après l'annonce.</p><div class="btnrow" style="margin-bottom:10px"><a class="btn small" href="${AIRBNB}" target="_blank" rel="noopener">Voir l'annonce Airbnb</a></div><div class="facts"><span>14 voyageurs</span><span>7 chambres</span><span>3 salles de bain</span><span>250 m²</span><span>Parc clos d'environ 5 000 m²</span><span>Cuisine équipée</span><span>Cheminée</span><span>Grande télé</span><span>Barbecue</span><span>Terrain de pétanque</span><span>Parking gratuit</span><span>Wifi</span></div></div>`;
+      <div class="info"><h4>La maison</h4><p class="muted">D'après l'annonce.</p><div class="btnrow" style="margin-bottom:10px"><a class="btn small" href="${AIRBNB}" target="_blank" rel="noopener">Voir l'annonce Airbnb</a></div><div class="facts"><span>14 voyageurs</span><span>7 chambres</span><span>3 salles de bain</span><span>250 m²</span><span>Parc clos d'environ 5 000 m²</span><span>Cuisine équipée</span><span>Cheminée</span><span>Grande télé</span><span>Barbecue</span><span>Terrain de pétanque</span><span>Parking gratuit</span><span>Wifi</span></div></div>
+      <p class="adminlink"><a href="/admin">Espace organisateur</a></p>`;
     $$('[data-copy]', $('#house')).forEach((b) => b.addEventListener('click', () => copy(b.dataset.copy)));
   }
 

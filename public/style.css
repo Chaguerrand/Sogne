@@ -375,3 +375,6 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .pile .lockbadge { display: none; position: absolute; top: -9px; right: -7px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; background: var(--bordeaux); color: #fff; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(107,20,32,.35); align-items: center; justify-content: center; }
 .pile .lockbadge svg { width: 18px; height: 18px; }
 .pile.locked .lockbadge { display: flex; }
+
+.adminlink { text-align: center; margin: 26px 0 4px; }
+.adminlink a { font-size: 13px; color: var(--muted); text-decoration: none; border: 1.5px solid rgba(107,20,32,.25); border-radius: 999px; padding: 7px 14px; display: inline-block; }
