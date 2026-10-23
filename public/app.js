@@ -40,7 +40,7 @@
     const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 5000);
     try {
       const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, device: S.device, name: S.name }), signal: ctrl.signal });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (!r.ok) { const er = new Error('HTTP ' + r.status); er.status = r.status; throw er; }
       return await r.json();
     } finally { clearTimeout(t); }
   }
@@ -51,12 +51,19 @@
   function saveLocal() { ls.set('localEngine', S.local); }
   function setOffline(v) { $('#offline').classList.toggle('hidden', !v); }
 
+  function setLocked(v, quiet) {
+    const was = S.locked; S.locked = !!v; ls.set('locked', S.locked);
+    $$('#piles .pile').forEach((b) => b.classList.toggle('locked', S.locked));
+    if (!quiet && was !== undefined && was !== S.locked) toast(S.locked ? 'Les cartes sont verrouillées.' : 'Les cartes sont débloquées : à vous de jouer !');
+  }
+
   async function drawCard(pile, classic) {
     try {
       const r = await post(classic ? '/api/drawClassic' : '/api/draw', { pile });
       S.counts = r.counts; renderPileCounts(); setOffline(false);
       return r.id;
     } catch (e) {
+      if (e.status === 403) { setLocked(true); return null; }
       setOffline(true);
       const st = localEngine();
       const r = classic ? Engine.drawClassic(st, S.data, pile) : Engine.draw(st, S.data, pile);
@@ -66,7 +73,7 @@
   }
   async function putBack(pile, id) {
     try { const r = await post('/api/putback', { pile, id }); S.counts = r.counts; renderPileCounts(); setOffline(false); }
-    catch (e) { setOffline(true); const st = localEngine(); Engine.putBack(st, pile, id); S.counts = Engine.counts(st); saveLocal(); renderPileCounts(); }
+    catch (e) { if (e.status === 403) return; setOffline(true); const st = localEngine(); Engine.putBack(st, pile, id); S.counts = Engine.counts(st); saveLocal(); renderPileCounts(); }
   }
 
   // ---------- Temps réel (SSE) ----------
@@ -76,9 +83,10 @@
     es = new EventSource(`/api/events?device=${encodeURIComponent(S.device)}&name=${encodeURIComponent(S.name || '')}`);
     es.addEventListener('snapshot', (e) => {
       const d = JSON.parse(e.data); S.connected = true; setOffline(false);
-      S.counts = d.counts; S.info = d.info; ls.set('info', d.info); S.online = d.online;
+      S.counts = d.counts; S.info = d.info; ls.set('info', d.info); S.online = d.online; setLocked(d.locked !== false, true);
       renderPileCounts(); renderHouse(); renderOnline(); handleNumbers(d.numbers, true);
     });
+    es.addEventListener('lock', (e) => setLocked(JSON.parse(e.data).locked));
     es.addEventListener('counts', (e) => { S.counts = JSON.parse(e.data).counts; renderPileCounts(); });
     es.addEventListener('online', (e) => { S.online = JSON.parse(e.data).online; renderOnline(); });
     es.addEventListener('info', (e) => { S.info = JSON.parse(e.data).info; ls.set('info', S.info); renderHouse(); });
@@ -121,9 +129,10 @@
     const box = $('#piles'); box.innerHTML = '';
     S.data.piles.forEach((p, i) => {
       const b = el(`<button class="pile ${p.id} ${i === 4 ? 'wide' : ''}" type="button" data-pile="${p.id}" aria-label="Tirer une carte ${PILE_LABEL[p.id]}">
-        <div class="stack"><div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"><img class="emb" alt="" src="img/emb_${p.id}.webp"><div class="name">${PILE_LABEL[p.id]}</div></div></div>
+        <div class="stack"><div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"><img class="emb" alt="" src="img/emb_${p.id}.webp"><div class="name">${PILE_LABEL[p.id]}</div></div><span class="lockbadge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2.4" fill="currentColor" stroke="none"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div>
         <div class="count" data-count="${p.id}"></div></button>`);
-      b.addEventListener('click', () => openDraw(p.id));
+      b.classList.toggle('locked', S.locked !== false);
+      b.addEventListener('click', () => { if (S.locked !== false) { toast('Les cartes seront débloquées par l\'organisateur.'); return; } openDraw(p.id); });
       box.appendChild(b);
     });
     renderPileCounts();

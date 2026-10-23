@@ -51,6 +51,8 @@
     <div class="frame sec">
       <h3>Piles de cartes</h3>
       <p class="state" id="persist"></p>
+      <p class="state" id="lockstate"></p>
+      <button class="bigbtn" id="lockbtn" type="button">Déverrouiller les cartes</button>
       <div id="piles"></div>
       <div class="btnrow"><button class="btn" id="reshuffle-all" type="button">Remélanger toutes les piles</button><button class="btn" id="reset" type="button">Tout réinitialiser</button></div>
     </div>
@@ -112,6 +114,9 @@
 
   function render(s) {
     renderInfo(s.info);
+    $('#lockstate').innerHTML = s.locked ? '<b>Cartes verrouillées</b> : les joueurs voient les piles avec un cadenas mais ne peuvent pas tirer.' : '<b>Cartes déverrouillées</b> : les joueurs peuvent tirer.';
+    $('#lockbtn').textContent = s.locked ? 'Déverrouiller les cartes' : 'Verrouiller les cartes';
+    $('#lockbtn').classList.toggle('stop', !s.locked); $('#lockbtn').dataset.locked = s.locked ? '1' : '';
     if (s.persist) $('#persist').textContent = s.persist.mode === 'db' ? (s.persist.ok ? 'Sauvegarde : base de données OK (les piles survivent à un redémarrage).' : 'Sauvegarde : ERREUR base de données (' + s.persist.error + ').') : 'Sauvegarde : fichier local seulement (perdue si Render redémarre).';
     const on = s.numbers.active;
     $('#numstate').textContent = on ? `Tour de numéros n°${s.numbers.round} en cours.` : `Aucun tour en cours (${s.numbers.round} déjà lancé${s.numbers.round > 1 ? 's' : ''}).`;
@@ -132,6 +137,7 @@
     if (!on && r.unassigned > 0) { w.textContent = `${r.unassigned} téléphone(s) n'ont pas de numéro (il n'y a que 15 numéros).`; w.classList.remove('hidden'); } else w.classList.add('hidden');
     render(r);
   });
+  $('#lockbtn').addEventListener('click', async () => { render(await api('/api/admin/lock', { locked: !$('#lockbtn').dataset.locked })); });
   $('#reshuffle-all').addEventListener('click', async () => { if (confirm('Remélanger toutes les piles ?')) { await api('/api/admin/reshuffle', { pile: 'all' }); poll(); } });
   $('#reset').addEventListener('click', async () => { if (confirm('Réinitialiser les 5 piles et les numéros ? (les infos de la maison sont conservées)')) { await api('/api/admin/reset', {}); poll(); } });
 

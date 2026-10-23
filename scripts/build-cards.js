@@ -220,11 +220,11 @@ const PREC = {
 const RULE = {
   defi: "Si tu réussis ton défi, Sonia avance d'une case. Si tu échoues, tu bois une gorgée. Quand la carte ne donne pas de durée, tu as 30 secondes pour te préparer, puis une minute pour réaliser le défi.",
   verite: "Une vérité ne fait pas avancer Sonia. Si tu refuses de répondre, tu bois une gorgée.",
-  duel: "Le vainqueur du duel fait avancer Sonia d'une case. Le perdant boit une gorgée.",
+  duel: "Le vainqueur du duel fait avancer Sonia d'une case. Le perdant boit une gorgée. Pour une épreuve collective, seuls les participants qui échouent boivent ; si tous échouent, tous boivent.",
   gage: "Si tu tiens ton gage jusqu'au bout, Sonia avance d'une case. Si tu l'enfreins, tu bois une gorgée et le gage prend fin.",
   sonia: "Une carte Sonia ne fait avancer Sonia que si la carte l'indique.",
 };
-const RULE_SECRET = "Si tu réussis ta mission, révèle la carte : Sonia avance de 2 cases. Si tu échoues, tu bois une gorgée et tu révèles la carte à ton prochain passage.";
+const RULE_SECRET = "Une mission secrète reste cachée et dure un tour au maximum. Si tu réussis ta mission, révèle la carte : Sonia avance de 2 cases. Si tu échoues, tu bois une gorgée et tu révèles la carte à ton prochain passage.";
 
 const sogne = (t) => t.replace(/Sonia/g, 'Sogne');
 

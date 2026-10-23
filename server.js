@@ -26,7 +26,7 @@ const DEFAULT_INFO = { ...BASE_INFO, ...envInfo };
 
 let state = null;
 function freshState() {
-  return { engine: Engine.newState(DATA), info: { ...DEFAULT_INFO }, numbers: { active: false, round: 0, assigned: {} }, log: [] };
+  return { engine: Engine.newState(DATA), info: { ...DEFAULT_INFO }, numbers: { active: false, round: 0, assigned: {} }, log: [], locked: true };
 }
 // Persistance : Postgres si DATABASE_URL est défini (survit aux redémarrages de Render), sinon fichier local.
 let pool = null;
@@ -81,6 +81,7 @@ function snapshotFor(device) {
   const n = state.numbers;
   return {
     counts: Engine.counts(state.engine),
+    locked: state.locked !== false,
     info: publicInfo(),
     numbers: { active: n.active, round: n.round, number: n.active && device in n.assigned ? n.assigned[device] : undefined, assigned: n.active ? device in n.assigned : false },
     online: clients.size,
@@ -97,7 +98,7 @@ function isAdmin(req) { return tokens.has(req.headers['x-admin-token']); }
 function adminState() {
   const players = [...clients.entries()].map(([id, c]) => ({ id, name: c.name || '', number: state.numbers.active ? state.numbers.assigned[id] ?? null : null }));
   return {
-    counts: Engine.counts(state.engine), reshuffles: state.engine.reshuffles, info: state.info,
+    counts: Engine.counts(state.engine), locked: state.locked !== false, reshuffles: state.engine.reshuffles, info: state.info,
     numbers: { active: state.numbers.active, round: state.numbers.round }, players, log: state.log.slice(-20).reverse(),
     persist: { mode: persist.mode, ok: !persist.lastError, error: persist.lastError || '', lastOk: persist.lastOk },
   };
@@ -151,6 +152,7 @@ async function api(req, res, url) {
   }
   if (req.method === 'POST' && (p === '/api/draw' || p === '/api/drawClassic')) {
     const b = await readBody(req);
+    if (state.locked !== false) return json(res, 403, { error: 'locked' });
     if (!validPile(b.pile)) return json(res, 400, { error: 'pile' });
     const r = p === '/api/draw' ? Engine.draw(state.engine, DATA, b.pile) : Engine.drawClassic(state.engine, DATA, b.pile);
     logDraw(b.device, cleanName(b.name), b.pile, r.id, p === '/api/drawClassic' ? 'carte à résoudre' : '');
@@ -161,6 +163,7 @@ async function api(req, res, url) {
   }
   if (req.method === 'POST' && p === '/api/putback') {
     const b = await readBody(req);
+    if (state.locked !== false) return json(res, 403, { error: 'locked' });
     const card = CARD_BY_ID.get(b.id);
     if (!card || !validPile(b.pile) || card.pile !== b.pile) return json(res, 400, { error: 'card' });
     const ok = Engine.putBack(state.engine, b.pile, b.id);
@@ -196,6 +199,10 @@ async function api(req, res, url) {
       save(); broadcast('info', { info: state.info });
       return json(res, 200, adminState());
     }
+    if (p === '/api/admin/lock') {
+      state.locked = !!b.locked; save(); broadcast('lock', { locked: state.locked });
+      return json(res, 200, adminState());
+    }
     if (p === '/api/admin/numbers/start') {
       const ids = Engine.shuffle([...clients.keys()]);
       const nums = Engine.shuffle(Array.from({ length: 15 }, (_, i) => i + 1));
@@ -212,7 +219,7 @@ async function api(req, res, url) {
       return json(res, 200, adminState());
     }
     if (p === '/api/admin/reset') {
-      const info = state.info; state = freshState(); state.info = info; save();
+      const info = state.info, locked = state.locked; state = freshState(); state.info = info; state.locked = locked; save();
       broadcast('counts', { counts: Engine.counts(state.engine) }); broadcast('numbers', { active: false });
       return json(res, 200, adminState());
     }
