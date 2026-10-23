@@ -120,8 +120,10 @@
     return `<div class="face back c-${pile}"><img alt="" src="img/emb_${pile}.webp"><div class="bn">${PILE_LABEL[pile]}</div><div class="bs">Sogne</div></div>`;
   }
   function ruleHTML(card) {
-    if (card.kind === 'joker' || !card.rule) return '';
-    return `<details class="rule-toggle"><summary>Rappel du barème</summary><p>${esc(card.rule)}</p></details>`;
+    if (card.kind === 'joker') return '';
+    const rule = S.data.rules && S.data.rules[card.secret ? 'secret' : card.pile];
+    if (!rule) return '';
+    return `<details class="rule-toggle"><summary>Rappel du barème</summary><p>${esc(rule)}</p></details>`;
   }
 
   // ---------- Piles ----------

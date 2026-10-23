@@ -143,7 +143,6 @@ async function api(req, res, url) {
     req.on('close', () => { if (clients.get(device) && clients.get(device).res === res) { clients.delete(device); broadcast('online', { online: clients.size }); } });
     return;
   }
-  if (req.method === 'GET' && p === '/api/state') return json(res, 200, snapshotFor(String(url.searchParams.get('device') || '')));
 
   if (req.method === 'POST' && p === '/api/name') {
     const b = await readBody(req); const c = clients.get(String(b.device || ''));
@@ -181,7 +180,8 @@ async function api(req, res, url) {
     if (a.length >= 8) return json(res, 429, { error: 'trop de tentatives' });
     const b = await readBody(req);
     if (!ADMIN_PIN || !safeEq(b.pin || '', ADMIN_PIN)) { a.push(now); attempts.set(ip, a); return json(res, 401, { error: 'code incorrect' }); }
-    const t = crypto.randomBytes(24).toString('hex'); tokens.add(t);
+    const t = crypto.randomBytes(24).toString('hex'); tokens.add(t); if (tokens.size > 20) tokens.delete(tokens.values().next().value);
+    if (attempts.size > 500) attempts.clear();
     return json(res, 200, { token: t });
   }
   if (p.startsWith('/api/admin/')) {
@@ -228,19 +228,36 @@ async function api(req, res, url) {
   return json(res, 404, { error: 'not found' });
 }
 
+// Fichiers statiques : lus une seule fois, compressés en gzip (texte), avec ETag pour que les téléphones n'aient rien à retélécharger si rien n'a changé.
+const zlib = require('zlib');
+const fileCache = new Map();
+function loadFile(file) {
+  let e = fileCache.get(file);
+  if (e) return e;
+  let buf;
+  try { buf = fs.readFileSync(file); } catch (err) { return null; }
+  const ext = path.extname(file);
+  const text = /^\.(html|js|css|json|svg|webmanifest|txt)$/.test(ext);
+  e = { buf, ext, etag: '"' + crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16) + '"', gz: text && buf.length > 600 ? zlib.gzipSync(buf, { level: 9 }) : null };
+  fileCache.set(file, e);
+  return e;
+}
 function serveStatic(req, res, url) {
-  let rel = decodeURIComponent(url.pathname);
+  let rel;
+  try { rel = decodeURIComponent(url.pathname); } catch (err) { return send(res, 400, 'bad request', { 'Content-Type': 'text/plain' }); }
   if (rel === '/') rel = '/index.html';
   if (rel === '/admin') rel = '/admin.html';
   if (rel === '/healthz') return send(res, 200, 'ok', { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' });
   const file = path.normalize(path.join(PUBLIC, rel));
   if (!file.startsWith(PUBLIC + path.sep)) return send(res, 403, 'forbidden', { 'Content-Type': 'text/plain' });
-  fs.readFile(file, (err, buf) => {
-    if (err) return send(res, 404, 'Introuvable', { 'Content-Type': 'text/plain; charset=utf-8' });
-    const ext = path.extname(file);
-    const long = ext === '.woff2' || ext === '.webp' || ext === '.png';
-    send(res, 200, req.method === 'HEAD' ? '' : buf, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': long ? 'public, max-age=86400' : 'no-cache' });
-  });
+  const e = loadFile(file);
+  if (!e) return send(res, 404, 'Introuvable', { 'Content-Type': 'text/plain; charset=utf-8' });
+  const long = e.ext === '.woff2' || e.ext === '.webp' || e.ext === '.png';
+  const headers = { 'Content-Type': MIME[e.ext] || 'application/octet-stream', 'Cache-Control': long ? 'public, max-age=604800' : 'no-cache', ETag: e.etag, Vary: 'Accept-Encoding' };
+  if (req.headers['if-none-match'] === e.etag) return send(res, 304, '', headers);
+  const gz = e.gz && /\bgzip\b/.test(req.headers['accept-encoding'] || '');
+  if (gz) headers['Content-Encoding'] = 'gzip';
+  send(res, 200, req.method === 'HEAD' ? '' : gz ? e.gz : e.buf, headers);
 }
 
 loadState().then(() => http.createServer((req, res) => {

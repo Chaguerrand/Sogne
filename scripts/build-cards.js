@@ -1,5 +1,4 @@
 // Construit public/cards.json à partir du JSON source (225 cartes) + jokers + corrections validées + précisions.
-// Règle : texte historique conservé dans "source_text", texte affiché dans "text".
 const fs = require('fs');
 const path = require('path');
 const src = JSON.parse(fs.readFileSync(path.join(__dirname, 'source-cards.json'), 'utf8'));
@@ -12,7 +11,7 @@ const PILES = [
   { id: 'sonia', label: 'SOGNE', cat: 'SONIA' },
 ];
 
-// Textes affichés : l'original est conservé dans "source_text". Les règles finales priment sur le texte historique,
+// Textes affichés (le texte d'origine reste dans scripts/source-cards.json). Les règles finales priment sur le texte historique,
 // et les consignes sont reformulées en phrases complètes (sans changer les règles du jeu).
 // Attention : une durée en chiffres ("20 secondes", "une minute") dans le texte déclenche le chrono de la carte.
 const OVERRIDES = {
@@ -245,9 +244,7 @@ for (const p of PILES) {
       kind: 'card',
       secret,
       text: sogne(display),
-      source_text: c.text,
       precisions: precs,
-      rule: sogne(secret ? RULE_SECRET : RULE[p.id]),
     });
   }
   for (const j of ['echange', 'collectif', 'aide']) {
@@ -259,6 +256,9 @@ const JOKERS = {
   collectif: { label: 'COLLECTIF', rule: 'Pioche une carte classique. Si elle est compatible, tu peux transformer ton épreuve en action collective.' },
   aide: { label: 'AIDE', rule: 'Pioche une carte classique. Si elle est compatible, choisis un autre joueur consentant pour t\'aider à la réaliser.' },
 };
-const out = { piles: PILES.map(({ id, label }) => ({ id, label })), jokers: JOKERS, cards };
+// Rappels de barème : un seul exemplaire par pile (et un pour les missions secrètes), au lieu d'un par carte
+const rules = { secret: sogne(RULE_SECRET) };
+for (const p of PILES) rules[p.id] = sogne(RULE[p.id]);
+const out = { piles: PILES.map(({ id, label }) => ({ id, label })), jokers: JOKERS, rules, cards };
 fs.writeFileSync(path.join(__dirname, '..', 'public', 'cards.json'), JSON.stringify(out));
 console.log('cards:', cards.length, '(classiques', cards.filter((c) => c.kind === 'card').length, '+ jokers', cards.filter((c) => c.kind === 'joker').length, ')');
