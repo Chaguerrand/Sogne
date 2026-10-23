@@ -325,13 +325,8 @@
     return 0;
   }
   // Son du chrono : un élément <audio> (WAV généré) joue même quand l'iPhone est en mode silencieux, contrairement à WebAudio.
-  // « Joyeux anniversaire » (domaine public) : [fréquence Hz, durée en temps]
-  const HAPPY_BIRTHDAY = [
-    [392, 0.75], [392, 0.25], [440, 1], [392, 1], [523, 1], [494, 2],
-    [392, 0.75], [392, 0.25], [440, 1], [392, 1], [587, 1], [523, 2],
-    [392, 0.75], [392, 0.25], [784, 1], [659, 1], [523, 1], [494, 1], [440, 2],
-    [698, 0.75], [698, 0.25], [659, 1], [523, 1], [587, 1], [523, 2],
-  ];
+  // Sonnerie : 4 doubles « bip bip » graves et courts, répartis sur 5 secondes (même durée que le flash)
+  const BIPS = [].concat(...[0, 1, 2, 3].map(() => [[330, 0.16], [0, 0.12], [330, 0.16], [0, 0.81]]));
   let alarm = null;
   function makeWav(parts) {
     const rate = 22050; const total = parts.reduce((n, p) => n + Math.round(rate * p.d), 0);
@@ -346,7 +341,7 @@
   function primeAlarm() {
     try {
       if (!alarm) {
-        alarm = { el: new Audio(), beep: makeWav(HAPPY_BIRTHDAY.map(([f, b]) => ({ f, d: b * 60 / 176 }))), silent: makeWav([{ f: 0, d: 0.1 }]) };
+        alarm = { el: new Audio(), beep: makeWav(BIPS.map(([f, d]) => ({ f, d }))), silent: makeWav([{ f: 0, d: 0.1 }]) };
         alarm.el.setAttribute('playsinline', '');
       }
       alarm.el.src = alarm.silent; const pr = alarm.el.play(); if (pr && pr.catch) pr.catch(() => {});
