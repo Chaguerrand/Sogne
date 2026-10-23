@@ -346,7 +346,13 @@
     } catch (e) {}
   }
   function beep() {
-    try { const f = document.createElement('div'); f.className = 'alarmflash'; document.body.appendChild(f); setTimeout(() => f.remove(), 2200); } catch (e) {}
+    try {
+      // 5 couleurs de dos de cartes, 0,5 s chacune, 2 passages = 5 s ; toucher l'écran pour fermer plus tôt
+      const cols = ['#ffd9e0', '#d3e8fb', '#fff0b5', '#dcf1d2', '#ffdcc2'], seq = cols.concat(cols);
+      const f = document.createElement('div'); f.className = 'alarmflash'; document.body.appendChild(f);
+      f.animate(seq.map((c, i) => ({ backgroundColor: c, offset: i / seq.length, easing: 'step-end' })).concat([{ backgroundColor: seq[seq.length - 1], offset: 1 }]), { duration: 5000, fill: 'forwards' });
+      const done = () => f.remove(); f.addEventListener('click', done); setTimeout(done, 5050);
+    } catch (e) {}
     try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) {}
     let played = false;
     try { if (alarm) { alarm.el.src = alarm.beep; alarm.el.volume = 1; const pr = alarm.el.play(); if (pr && pr.catch) pr.catch(() => {}); played = true; } } catch (e) {}
