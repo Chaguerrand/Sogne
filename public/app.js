@@ -324,8 +324,33 @@
     if (/\b(une|1)\s*minute\b/i.test(card.text)) return 60;
     return 0;
   }
+  // Son du chrono : un élément <audio> (WAV généré) joue même quand l'iPhone est en mode silencieux, contrairement à WebAudio.
+  let alarm = null;
+  function makeWav(parts) {
+    const rate = 22050; const total = parts.reduce((n, p) => n + Math.round(rate * p.d), 0);
+    const buf = new ArrayBuffer(44 + total * 2); const v = new DataView(buf);
+    const w = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + total * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, total * 2, true);
+    let o = 44;
+    parts.forEach((p) => { const n = Math.round(rate * p.d); for (let i = 0; i < n; i++) { const t = i / rate, env = p.f ? Math.min(1, t * 60, (p.d - t) * 25) : 0; v.setInt16(o, Math.sin(2 * Math.PI * p.f * t) * 0.9 * 32767 * Math.max(0, env), true); o += 2; } });
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+  function primeAlarm() {
+    try {
+      if (!alarm) {
+        alarm = { el: new Audio(), beep: makeWav([{ f: 880, d: 0.3 }, { f: 0, d: 0.12 }, { f: 880, d: 0.3 }, { f: 0, d: 0.12 }, { f: 1175, d: 0.3 }, { f: 0, d: 0.12 }, { f: 1175, d: 0.3 }, { f: 0, d: 0.12 }, { f: 1397, d: 0.7 }]), silent: makeWav([{ f: 0, d: 0.1 }]) };
+        alarm.el.setAttribute('playsinline', '');
+      }
+      alarm.el.src = alarm.silent; const pr = alarm.el.play(); if (pr && pr.catch) pr.catch(() => {});
+    } catch (e) {}
+  }
   function beep() {
+    try { const f = document.createElement('div'); f.className = 'alarmflash'; document.body.appendChild(f); setTimeout(() => f.remove(), 2200); } catch (e) {}
     try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) {}
+    let played = false;
+    try { if (alarm) { alarm.el.src = alarm.beep; alarm.el.volume = 1; const pr = alarm.el.play(); if (pr && pr.catch) pr.catch(() => {}); played = true; } } catch (e) {}
+    if (played) return;
     try {
       const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
       const ctx = new AC();
@@ -339,6 +364,7 @@
     let iv = null;
     return { label, cls: 'chrono', run: (b) => {
       if (iv) { clearInterval(iv); iv = null; b.classList.remove('run', 'done'); b.textContent = label; return; }
+      primeAlarm();
       const end = Date.now() + s * 1000; b.classList.remove('done'); b.classList.add('run');
       const tick = () => {
         if (!b.isConnected) { clearInterval(iv); iv = null; return; }

@@ -378,3 +378,6 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 
 .adminlink { text-align: center; margin: 26px 0 4px; }
 .adminlink a { font-size: 13px; color: var(--muted); text-decoration: none; border: 1.5px solid rgba(107,20,32,.25); border-radius: 999px; padding: 7px 14px; display: inline-block; }
+
+.alarmflash { position: fixed; inset: 0; z-index: 120; pointer-events: none; background: var(--bordeaux); opacity: 0; animation: alarmflash .55s ease-in-out 4; }
+@keyframes alarmflash { 0%, 100% { opacity: 0; } 50% { opacity: .55; } }
