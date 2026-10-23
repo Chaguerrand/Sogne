@@ -366,3 +366,7 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .btn.chrono.run { background: #fff; color: var(--bordeaux); font-variant-numeric: tabular-nums; }
 .btn.chrono.done { background: var(--bordeaux); color: #fff; animation: pulse .5s ease-in-out 6; }
 @keyframes pulse { 50% { transform: scale(1.04); } }
+
+/* Règles par carte : pastille au-dessus du texte pour laisser la place aux phrases complètes */
+.numrow { flex-direction: column; gap: 5px; margin: 14px 0; }
+.numrow .numchip { max-width: none; min-width: 0; align-self: flex-start; padding: 4px 10px; }
