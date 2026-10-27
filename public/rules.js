@@ -8,7 +8,7 @@
 
   const RULES = [
     {
-      id: 'bienvenue', title: 'Bienvenue !', open: true,
+      id: 'bienvenue', title: 'Bienvenue !',
       html: `
       <p>Ce jeu a été créé pour célébrer Sonia comme il se doit, avec des <mark class="m-defi">défis</mark>, des <mark class="m-verite">révélations</mark>, des <mark class="m-duel">duels</mark>, des <mark class="m-gage">gages</mark> et plein de surprises !</p>
       <p>Les joueurs relèvent des défis, la taquinent, l'aident (ou pas), et tout le monde passe un bon moment, rempli de rires et de souvenirs.</p>
