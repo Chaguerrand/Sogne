@@ -565,6 +565,7 @@
   function renderRules() {
     const box = $('#rules'); box.innerHTML = '';
     window.RULES.forEach((s) => {
+      if (s.intro) { box.appendChild(el(`<div class="rules-intro">${s.html}</div>`)); return; }
       const a = el(`<div class="acc ${s.open ? 'open' : ''}" id="r-${s.id}"><button type="button" aria-expanded="${!!s.open}"><b>${s.title}</b><i>+</i></button><div class="body">${s.html}</div></div>`);
       $('button', a).addEventListener('click', (e) => { const open = a.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded', open); });
       box.appendChild(a);
