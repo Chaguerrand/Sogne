@@ -52,9 +52,19 @@
   function setOffline(v) { $('#offline').classList.toggle('hidden', !v); }
 
   function setLocked(v, quiet) {
-    const was = S.locked; S.locked = !!v; ls.set('locked', S.locked);
+    const was = S.locked; S.locked = !!v;
     $$('#piles .pile').forEach((b) => b.classList.toggle('locked', S.locked));
     if (!quiet && was !== undefined && was !== S.locked) toast(S.locked ? 'Les cartes sont verrouillées.' : 'Les cartes sont débloquées : à vous de jouer !');
+  }
+
+  // Vérifie auprès du serveur si les cartes sont déverrouillées (utile quand le téléphone s'est endormi et a raté l'info en direct).
+  async function refreshLock() {
+    try {
+      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 4000);
+      const r = await fetch('/api/status', { cache: 'no-store', signal: ctrl.signal }); clearTimeout(t);
+      const d = await r.json(); S.counts = d.counts; renderPileCounts(); setLocked(d.locked !== false, true);
+    } catch (e) { /* hors ligne : on garde l'état connu */ }
+    return S.locked === false;
   }
 
   async function drawCard(pile, classic) {
@@ -93,6 +103,16 @@
     es.addEventListener('numbers', (e) => handleNumbers(JSON.parse(e.data), false));
     es.onerror = () => { S.connected = false; renderOnline(); };
   }
+  // iPhone : la connexion en direct est coupée quand l'écran s'éteint. Au réveil on se reconnecte pour récupérer verrou, compteurs et numéros.
+  let hiddenAt = 0;
+  function wake() {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (S.data && hiddenAt && Date.now() - hiddenAt > 3000) connect();
+    hiddenAt = 0;
+    if (wlWant) keepAwake(true);
+  }
+  document.addEventListener('visibilitychange', wake);
+  window.addEventListener('pageshow', (e) => { if (e.persisted && S.data) connect(); });
   function renderOnline() {
     const b = $('#online'); b.classList.toggle('on', S.connected);
     $('span', b).textContent = S.connected ? `connecté${S.online > 1 ? ` : ${S.online} joueurs` : ''}` : 'hors connexion';
@@ -134,7 +154,10 @@
         <div class="stack"><div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"><img class="emb" alt="" src="img/emb_${p.id}.webp"><div class="name">${PILE_LABEL[p.id]}</div></div><span class="lockbadge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2.4" fill="currentColor" stroke="none"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div>
         <div class="count" data-count="${p.id}"></div></button>`);
       b.classList.toggle('locked', S.locked !== false);
-      b.addEventListener('click', () => { if (S.locked !== false) { toast('Les cartes seront débloquées par l\'organisateur.'); return; } openDraw(p.id); });
+      b.addEventListener('click', async () => {
+        if (S.locked !== false && !(await refreshLock())) { toast('Les cartes seront débloquées par l\'organisateur.'); return; }
+        openDraw(p.id);
+      });
       box.appendChild(b);
     });
     renderPileCounts();
@@ -330,6 +353,18 @@
   // Sonnerie : 4 doubles « bip bip » graves et courts, répartis sur 5 secondes (même durée que le flash)
   const BIPS = [].concat(...[0, 1, 2, 3].map(() => [[330, 0.16], [0, 0.12], [330, 0.16], [0, 0.81]]));
   let alarm = null;
+  // Garde l'écran allumé pendant un chrono (sinon l'iPhone se verrouille au bout de 30 s et la sonnerie est perdue)
+  let wl = null, wlWant = false;
+  async function keepAwake(on) {
+    wlWant = on;
+    try {
+      if (on && navigator.wakeLock && !wl) {
+        const l = await navigator.wakeLock.request('screen');
+        if (!wlWant) { l.release(); return; }
+        wl = l; l.addEventListener('release', () => { if (wl === l) wl = null; });
+      } else if (!on && wl) { const l = wl; wl = null; l.release(); }
+    } catch (e) { wl = null; }
+  }
   function makeWav(parts) {
     const rate = 22050; const total = parts.reduce((n, p) => n + Math.round(rate * p.d), 0);
     const buf = new ArrayBuffer(44 + total * 2); const v = new DataView(buf);
@@ -373,13 +408,13 @@
     const label = s >= 60 ? `Lancer le chrono : ${s / 60 === 1 ? '1 min' : s + ' s'}` : `Lancer le chrono : ${s} s`;
     let iv = null;
     return { label, cls: 'chrono', run: (b) => {
-      if (iv) { clearInterval(iv); iv = null; b.classList.remove('run', 'done'); b.textContent = label; return; }
-      primeAlarm();
+      if (iv) { clearInterval(iv); iv = null; keepAwake(false); b.classList.remove('run', 'done'); b.textContent = label; return; }
+      primeAlarm(); keepAwake(true);
       const end = Date.now() + s * 1000; b.classList.remove('done'); b.classList.add('run');
       const tick = () => {
-        if (!b.isConnected) { clearInterval(iv); iv = null; return; }
+        if (!b.isConnected) { clearInterval(iv); iv = null; keepAwake(false); return; }
         const left = Math.ceil((end - Date.now()) / 1000);
-        if (left <= 0) { clearInterval(iv); iv = null; b.classList.remove('run'); b.classList.add('done'); b.textContent = 'Temps écoulé ! (toucher pour relancer)'; beep(); return; }
+        if (left <= 0) { clearInterval(iv); iv = null; keepAwake(false); b.classList.remove('run'); b.classList.add('done'); b.textContent = 'Temps écoulé ! (toucher pour relancer)'; beep(); return; }
         b.textContent = left + ' s  (toucher pour arrêter)';
       };
       tick(); iv = setInterval(tick, 250);
@@ -538,9 +573,9 @@
 
   // ---------- Programme ----------
   const PROG = [
-    { day: 'Vendredi', slots: [['A partir de 20h :', 'Arrivée'], ['Dès 21h :', 'Apéro dînatoire et Olympiades - Beer Pong, Qui connaît le mieux Sogne, Mimes...']] },
-    { day: 'Samedi', slots: [['11h :', 'Cours de Pilate par Professeur Boulud'], ['13h :', 'Raclette party'], ['16h :', 'Activité manuelle - Le jeu du peintre'], ['A partir de 19h :', 'CONCOURS TOP CHEF', 'Brigade Sue & Brigade Boulud au rapport !']] },
-    { day: 'Dimanche', slots: [['A partir de 12h :', 'Brunch thème “Le jogging c’est la vie”']] },
+    { day: 'Vendredi', slots: [['À partir de 20h :', 'Arrivée'], ['Dès 21h :', 'Apéro dînatoire et Olympiades - Beer Pong, Qui connaît le mieux Sogne, Mimes...']] },
+    { day: 'Samedi', slots: [['11h :', 'Cours de Pilate par Professeur Boulud'], ['13h :', 'Raclette party'], ['16h :', 'Activité manuelle - Le jeu du peintre'], ['À partir de 19h :', 'CONCOURS TOP CHEF', 'Brigade Sue & Brigade Boulud au rapport !']] },
+    { day: 'Dimanche', slots: [['À partir de 12h :', 'Brunch thème “Le jogging c’est la vie”']] },
   ];
   function renderProg() {
     $('#prog').innerHTML = PROG.map((d) => `<div class="day"><h3>${d.day}</h3>${d.slots.map((s) => `<div class="slot"><span class="t">${esc(s[0])}</span><div class="d">${esc(s[1])}${s[2] ? `<em>${esc(s[2])}</em>` : ''}</div></div>`).join('')}</div>`).join('');
@@ -598,7 +633,6 @@
     try { S.data = await (await fetch('cards.json')).json(); }
     catch (e) { $('#piles').innerHTML = '<p>Impossible de charger les cartes. Recharge la page.</p>'; return; }
     S.data.cards.forEach((c) => S.byId.set(c.id, c));
-    Engine.newState(S.data); // validation
     renderPiles(); renderRules(); renderProg(); renderHouse(); renderRecent(); renderDock(); renderHello(); renderOnline();
     showTab('prog');
     connect();

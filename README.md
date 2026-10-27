@@ -20,15 +20,16 @@ Variables : `ADMIN_PIN` (obligatoire pour activer `/admin`), `INFO_JSON` (infos 
 4. UptimeRobot : New monitor > HTTP(s) > URL `https://VOTRE-URL/healthz` > intervalle 5 minutes.
    Cela empêche le service gratuit de s'endormir (réveil sinon : environ 50 secondes).
 
-Attention : sur l'offre gratuite, le disque est éphémère. Si le service redémarre (nouveau déploiement, incident),
-l'état des piles repart de zéro (nouveau mélange complet) et il faut se reconnecter à l'admin.
-Évitez de redéployer pendant la soirée.
+Attention : sur l'offre gratuite, le disque est éphémère. Sans base de données (voir "Sauvegarde des piles"), un redémarrage
+remet les piles à zéro. Avec la base, l'état (piles, verrou, infos, numéros) est restauré et la session admin reste valable.
+Évitez tout de même de redéployer pendant la partie : le site est indisponible environ une minute.
 
 ## Admin (`/admin`)
 
 - **Numéros** : un clic distribue un numéro différent (1 à 15) à chaque téléphone connecté. Il s'affiche 10 secondes,
   puis chaque joueur peut le revoir 4 secondes avec un bouton. Le tour se termine quand vous rappuyez sur le bouton.
-- **Piles** : compteurs, remélange d'une pile ou de toutes, réinitialisation.
+- **Piles** : compteurs, remélange d'une pile ou de toutes, réinitialisation, et verrou des cartes (verrouillées par défaut :
+  les joueurs voient les piles avec un cadenas mais ne peuvent pas tirer tant que vous n'avez pas déverrouillé).
 - **Infos pratiques** : adresse, code de la boîte à clés, wifi, notes. Modifiable en direct, sans redéployer.
 - **QR code** et **journal des derniers tirages**.
 

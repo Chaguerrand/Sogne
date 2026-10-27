@@ -90,10 +90,11 @@ function snapshotFor(device) {
 setInterval(() => { for (const c of clients.values()) { try { c.res.write(': ping\n\n'); } catch (e) { /* ignore */ } } }, 20000);
 
 // ---- Admin ----
-const tokens = new Set();
 const attempts = new Map();
 function safeEq(a, b) { const x = Buffer.from(String(a)); const y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); }
-function isAdmin(req) { return tokens.has(req.headers['x-admin-token']); }
+// Jeton dérivé du code admin : la session organisateur survit à un redémarrage du serveur (pas de nouvelle saisie du code après un déploiement).
+const ADMIN_TOKEN = ADMIN_PIN ? crypto.createHmac('sha256', ADMIN_PIN).update('sogne-admin-v1').digest('hex') : '';
+function isAdmin(req) { return !!ADMIN_TOKEN && safeEq(req.headers['x-admin-token'] || '', ADMIN_TOKEN); }
 
 function adminState() {
   const players = [...clients.entries()].map(([id, c]) => ({ id, name: c.name || '', number: state.numbers.active ? state.numbers.assigned[id] ?? null : null }));
@@ -121,7 +122,7 @@ function json(res, code, obj) { send(res, code, JSON.stringify(obj), { 'Content-
 function readBody(req) {
   return new Promise((resolve) => {
     let b = '';
-    req.on('data', (d) => { b += d; if (b.length > 20000) req.destroy(); });
+    req.on('data', (d) => { b += d; if (b.length > 20000) { req.destroy(); resolve({}); } });
     req.on('end', () => { try { resolve(JSON.parse(b || '{}')); } catch (e) { resolve({}); } });
   });
 }
@@ -143,6 +144,9 @@ async function api(req, res, url) {
     req.on('close', () => { if (clients.get(device) && clients.get(device).res === res) { clients.delete(device); broadcast('online', { online: clients.size }); } });
     return;
   }
+
+  // Petit état léger : permet à un téléphone qui se réveille de vérifier tout de suite si les cartes sont déverrouillées.
+  if (req.method === 'GET' && p === '/api/status') return json(res, 200, { locked: state.locked !== false, counts: Engine.counts(state.engine) });
 
   if (req.method === 'POST' && p === '/api/name') {
     const b = await readBody(req); const c = clients.get(String(b.device || ''));
@@ -180,9 +184,8 @@ async function api(req, res, url) {
     if (a.length >= 8) return json(res, 429, { error: 'trop de tentatives' });
     const b = await readBody(req);
     if (!ADMIN_PIN || !safeEq(b.pin || '', ADMIN_PIN)) { a.push(now); attempts.set(ip, a); return json(res, 401, { error: 'code incorrect' }); }
-    const t = crypto.randomBytes(24).toString('hex'); tokens.add(t); if (tokens.size > 20) tokens.delete(tokens.values().next().value);
     if (attempts.size > 500) attempts.clear();
-    return json(res, 200, { token: t });
+    return json(res, 200, { token: ADMIN_TOKEN });
   }
   if (p.startsWith('/api/admin/')) {
     if (!isAdmin(req)) return json(res, 401, { error: 'non autorisé' });
