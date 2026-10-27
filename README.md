@@ -26,7 +26,7 @@ remet les piles à zéro. Avec la base, l'état (piles, verrou, infos, numéros)
 
 ## Admin (`/admin`)
 
-- **Numéros** : un clic distribue un numéro différent (1 à 15) à chaque téléphone connecté. Il s'affiche 10 secondes,
+- **Numéros** : un clic distribue un numéro différent (1 à 16) à chaque téléphone connecté. Il s'affiche 10 secondes,
   puis chaque joueur peut le revoir 4 secondes avec un bouton. Le tour se termine quand vous rappuyez sur le bouton.
 - **Piles** : compteurs, remélange d'une pile ou de toutes, réinitialisation, et verrou des cartes (verrouillées par défaut :
   les joueurs voient les piles avec un cadenas mais ne peuvent pas tirer tant que vous n'avez pas déverrouillé).

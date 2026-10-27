@@ -208,13 +208,13 @@ async function api(req, res, url) {
     }
     if (p === '/api/admin/numbers/start') {
       const ids = Engine.shuffle([...clients.keys()]);
-      const nums = Engine.shuffle(Array.from({ length: 15 }, (_, i) => i + 1));
+      const nums = Engine.shuffle(Array.from({ length: 16 }, (_, i) => i + 1));
       const assigned = {};
-      ids.slice(0, 15).forEach((id, i) => { assigned[id] = nums[i]; });
+      ids.slice(0, 16).forEach((id, i) => { assigned[id] = nums[i]; });
       state.numbers = { active: true, round: state.numbers.round + 1, assigned };
       save();
       for (const [id, c] of clients) sse(c.res, 'numbers', { active: true, round: state.numbers.round, number: assigned[id] ?? null, assigned: id in assigned });
-      return json(res, 200, { ...adminState(), unassigned: Math.max(0, ids.length - 15) });
+      return json(res, 200, { ...adminState(), unassigned: Math.max(0, ids.length - 16) });
     }
     if (p === '/api/admin/numbers/stop') {
       state.numbers = { ...state.numbers, active: false, assigned: {} };

@@ -135,7 +135,7 @@
     const on = $('#numbtn2').classList.contains('stop');
     const r = await api(on ? '/api/admin/numbers/stop' : '/api/admin/numbers/start', {});
     const w = $('#numwarn');
-    if (!on && r.unassigned > 0) { w.textContent = `${r.unassigned} téléphone(s) n'ont pas de numéro (il n'y a que 15 numéros).`; w.classList.remove('hidden'); } else w.classList.add('hidden');
+    if (!on && r.unassigned > 0) { w.textContent = `${r.unassigned} téléphone(s) n'ont pas de numéro (il n'y a que 16 numéros).`; w.classList.remove('hidden'); } else w.classList.add('hidden');
     render(r);
   });
   $('#lockbtn').addEventListener('click', async () => { render(await api('/api/admin/lock', { locked: !$('#lockbtn').dataset.locked })); });
