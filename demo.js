@@ -82,8 +82,8 @@ const LANGS = [
 
 // Cartes particulières, pour pouvoir tester toutes les fonctions : [pile, numéro] -> texte imposé / options
 const SPECIAL = {
-  'defi-3': { text: 'Yer shekh ma shieraki anni, khal !', secs: 30, lang: 'Dothraki' },
-  'duel-5': { text: 'Skoros ñuhys iksan, valonqar !', secs: 60, lang: 'Haut valyrien' },
+  'defi-3': { text: 'Yer shekh ma shieraki anni, khal !', lang: 'Dothraki' },
+  'duel-5': { text: 'Skoros ñuhys iksan, valonqar !', lang: 'Haut valyrien' },
   'gage-6': { secret: true },
 };
 
@@ -101,13 +101,6 @@ const SCRIPT = {
   'Haut valyrien': { fx: 'moonrunes', label: 'Runes lunaires', conv: (t) => plain(t).replace(/!/g, '.').replace(/['']/g, '').replace(/-/g, ' ') },
   "Na'vi": { fx: 'alien', label: 'Martien', conv: plain },
 };
-// précisions : toujours en alphabet latin (langues sans écriture propre)
-const LATIN_LANGS = LANGS.filter(([n]) => !SCRIPT[n]);
-
-function PREC_LANGS(cur, k) {
-  const l = LATIN_LANGS.filter(([nm]) => nm !== cur);
-  return l[k % l.length][1][1];
-}
 
 function build(real) {
   const cards = [];
@@ -115,7 +108,7 @@ function build(real) {
     for (let n = 1; n <= 10; n++) {
       const li0 = (n - 1 + pi * 3) % LANGS.length;
       const spk = SPECIAL[`${p.id}-${n}`];
-      const li = spk && spk.secs ? LANGS.findIndex(([nm]) => nm === (spk.lang)) : li0;
+      const li = spk && spk.lang ? LANGS.findIndex(([nm]) => nm === (spk.lang)) : li0;
       const [name, variants] = LANGS[li];
       const sp = SPECIAL[`${p.id}-${n}`] || {};
       const sc = sp.latin ? null : SCRIPT[name];
@@ -124,11 +117,10 @@ function build(real) {
       const card = {
         id: `demo-${p.id}-${String(n).padStart(2, '0')}`, pile: p.id, number: n, kind: 'card', secret: !!sp.secret, text,
         // une carte sur trois a une précision, elle aussi en langue inventée (alphabet latin)
-        precisions: n % 3 === 0 && !sp.secret ? [PREC_LANGS(name, li + n)] : [],
+        precisions: [],
       };
       if (sc) card.fx = sc.fx;
       card.lang = (sc && sc.label) || (name === 'Lorem ipsum' ? 'Faux latin' : name);
-      if (sp.secs) card.secs = sp.secs;
       cards.push(card);
     }
   });
