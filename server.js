@@ -46,6 +46,14 @@ function adopt(s) {
   // cohérence : toutes les piles présentes
   for (const p of DATA.piles) if (!state.engine.piles[p.id]) state.engine.piles[p.id] = Engine.newPile(DATA.cards, p.id);
 }
+function applyInfoForce() {
+  // INFO_FORCE (variable d'environnement, JSON) : écrase ponctuellement certains champs d'infos au démarrage, puis se vide
+  try {
+    const f = JSON.parse(process.env.INFO_FORCE || '{}'); let n = 0;
+    for (const k of Object.keys(BASE_INFO)) if (typeof f[k] === 'string') { state.info[k] = f[k].slice(0, 600); n++; }
+    if (n) { console.log('INFO_FORCE appliqué :', n, 'champ(s)'); save(); }
+  } catch (e) { console.warn('INFO_FORCE invalide'); }
+}
 async function loadState() {
   state = null;
   if (pool) {
@@ -59,6 +67,7 @@ async function loadState() {
   if (!state) {
     try { adopt(JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'))); } catch (e) { state = freshState(); }
   }
+  applyInfoForce();
 }
 let saveTimer = null;
 function save() {
