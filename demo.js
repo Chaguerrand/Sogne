@@ -97,7 +97,7 @@ const SCRIPT = {
   'Aurebesh': { fx: 'aurebesh' },
   'Huttese': { fx: 'aurebesh' },
   'Klingon': { fx: 'klingon' },
-  'Dothraki': { fx: 'alienalpha', label: 'Martien', conv: plain },
+  'Dothraki': { fx: 'alienalpha', label: 'Neptunien', conv: plain },
   'Haut valyrien': { fx: 'moonrunes', label: 'Runes lunaires', conv: (t) => plain(t).replace(/!/g, '.').replace(/['']/g, '').replace(/-/g, ' ') },
   "Na'vi": { fx: 'alien', label: 'Martien', conv: plain },
 };

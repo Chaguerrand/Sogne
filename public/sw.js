@@ -1,6 +1,6 @@
 /* Service worker : permet de relire règles, programme et infos de la maison hors ligne.
    Les tirages partagés nécessitent le réseau (sinon tirage local avec avertissement). */
-const VERSION = 'sogne-v7';
+const VERSION = 'sogne-v8';
 const SHELL = ['/', '/style.css', '/app.js', '/engine.js', '/rules.js', '/cards.json', '/manifest.webmanifest',
   '/fonts/rozha-one-latin-400-normal.woff2', '/fonts/abril-fatface-latin-400-normal.woff2', '/fonts/mrs-saint-delafield-latin-400-normal.woff2',
   '/fonts/inter-latin-400-normal.woff2', '/fonts/inter-latin-500-normal.woff2', '/fonts/inter-latin-600-normal.woff2', '/fonts/inter-latin-700-normal.woff2',
