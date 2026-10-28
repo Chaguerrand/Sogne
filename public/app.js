@@ -333,7 +333,7 @@
     const ov = el(`<div class="overlay" role="dialog" aria-modal="true">
       <div class="scene"><div class="card3d"><div class="face front"></div>${backHTML(pile)}</div></div>
       <div class="ov-side"><div class="ov-top"></div><div class="ov-actions"></div><div class="slot-rule"></div></div></div>`);
-    layer.innerHTML = ''; layer.appendChild(ov);
+    layer.innerHTML = ''; layer.appendChild(ov); enableTapClose(ov);
     const c3 = $('.card3d', ov);
     requestAnimationFrame(() => requestAnimationFrame(() => c3.classList.add('in')));
     return { ov, c3, front: $('.face.front', ov), top: $('.ov-top', ov), actions: $('.ov-actions', ov), slotRule: $('.slot-rule', ov) };
@@ -426,35 +426,51 @@
       setTimeout(() => ctx.close && ctx.close(), 1600);
     } catch (e) {}
   }
-  function chronoAction(card) {
+  function chronoAction(card, ov) {
     const s = durationOf(card); if (!s) return null;
     const label = s >= 60 ? `Lancer le chrono : ${s / 60 === 1 ? '1 min' : s + ' s'}` : `Lancer le chrono : ${s} s`;
     let iv = null;
-    return { label, cls: 'chrono', run: (b) => {
-      if (iv) { clearInterval(iv); iv = null; keepAwake(false); b.classList.remove('run', 'done'); b.textContent = label; return; }
+    const ch = { state: 'idle' };
+    if (ov) ov._ch = ch;
+    const start = (b) => {
+      if (iv || !b) return;
       primeAlarm(); keepAwake(true);
-      const end = Date.now() + s * 1000; b.classList.remove('done'); b.classList.add('run');
+      const end = Date.now() + s * 1000; b.classList.remove('done'); b.classList.add('run'); ch.state = 'run';
       const tick = () => {
-        if (!b.isConnected) { clearInterval(iv); iv = null; keepAwake(false); return; }
+        if (!b.isConnected) { clearInterval(iv); iv = null; keepAwake(false); ch.state = 'idle'; return; }
         const left = Math.ceil((end - Date.now()) / 1000);
-        if (left <= 0) { clearInterval(iv); iv = null; keepAwake(false); b.classList.remove('run'); b.classList.add('done'); b.textContent = 'Temps écoulé ! (toucher pour relancer)'; beep(); return; }
-        b.textContent = left + ' s  (toucher pour arrêter)';
+        if (left <= 0) { clearInterval(iv); iv = null; keepAwake(false); b.classList.remove('run'); b.classList.add('done'); b.textContent = 'Temps écoulé ! Relancer le chrono'; ch.state = 'done'; beep(); return; }
+        b.textContent = left + ' s';
       };
       tick(); iv = setInterval(tick, 250);
-    } };
+    };
+    ch.start = () => start(ov && ov.querySelector('.btn.chrono'));
+    return { label, cls: 'chrono', run: (b) => start(b) };
+  }
+  // Toucher n'importe où sur l'écran : lance le chrono (s'il y en a un et qu'il n'a pas démarré), ignore pendant le chrono, sinon ferme
+  function armTapClose(ov) { ov.dataset.dismiss = '1'; ov.dataset.since = String(Date.now() + 700); }
+  function enableTapClose(ov) {
+    ov.addEventListener('click', (e) => {
+      if (e.target.closest('button, summary, details, .pick, a')) return;
+      if (ov.dataset.dismiss !== '1' || Date.now() < +ov.dataset.since) return;
+      const ch = ov._ch;
+      if (ch && ch.state === 'idle') { ch.start(); return; }
+      if (ch && ch.state === 'run') return;
+      closeLayer();
+    });
   }
 
   function finalActions(o, card, extra) {
     const acts = [];
-    const ch = chronoAction(card); if (ch) acts.push(ch);
+    const ch = chronoAction(card, o.ov); if (ch) acts.push(ch);
     if (card.secret) {
       let shown = false;
       acts.push({ label: 'Afficher ma mission', cls: 'primary', run: (b) => {
         shown = !shown; o.front.innerHTML = frontInner(card, { hidden: !shown }); b.textContent = shown ? 'Masquer ma mission' : 'Afficher ma mission';
       } });
     }
-    acts.push({ label: card.secret ? 'C\'est noté, je cache la carte' : 'Fermer', cls: card.secret ? 'ghost' : 'primary', run: () => closeLayer() });
     setActions(o, extra ? [...extra, ...acts] : acts);
+    armTapClose(o.ov);
   }
   function afterResolved(card) { pushHistory(card.id); setActive(card); }
 
@@ -542,16 +558,15 @@
     document.body.style.overflow = 'hidden';
     let hidden = !!opts.hidden;
     const ov = el(`<div class="overlay" role="dialog" aria-modal="true"><div class="sheet-card"><div class="face front ${faceClass(card)}"></div></div><div class="ov-side"><div class="ov-top"></div><div class="ov-actions"></div><div class="slot-rule"></div></div></div>`);
-    layer.innerHTML = ''; layer.appendChild(ov);
+    layer.innerHTML = ''; layer.appendChild(ov); enableTapClose(ov);
     const face = $('.face', ov); const draw = () => { face.innerHTML = frontInner(card, { hidden }); };
     draw();
     const o = { actions: $('.ov-actions', ov) };
     const acts = [];
-    const ch = chronoAction(card); if (ch) acts.push(ch);
+    const ch = chronoAction(card, ov); if (ch) acts.push(ch);
     if (card.secret) acts.push({ label: hidden ? 'Afficher ma mission' : 'Masquer ma mission', cls: 'primary', run: (b) => { hidden = !hidden; draw(); b.textContent = hidden ? 'Afficher ma mission' : 'Masquer ma mission'; } });
     if (opts.endable) acts.push({ label: 'C\'est terminé (mon tour est passé)', cls: card.secret ? 'ghost' : 'primary', run: () => { clearActive(); closeLayer(); toast('Gage terminé'); } });
-    acts.push({ label: 'Fermer', cls: 'ghost', run: closeLayer });
-    setActions(o, acts);
+    setActions(o, acts); armTapClose(ov);
     $('.slot-rule', ov).innerHTML = ruleHTML(card);
   }
 
@@ -650,7 +665,6 @@
   $('#hello').addEventListener('click', askName);
 
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && layer.firstChild) closeLayer(); });
-  layer.addEventListener('click', (e) => { if (e.target.classList && e.target.classList.contains('overlay') && layer.querySelector('.sheet-card')) closeLayer(); });
 
   // ---------- Démarrage ----------
   async function init() {
@@ -661,6 +675,6 @@
     if (!ls.get('nameAsked', false)) setTimeout(askName, 700);
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   }
-  window.__sogne = { frontInner, faceClass, S };
+  window.__sogne = { frontInner, faceClass, S, openSheet };
   init();
 })();

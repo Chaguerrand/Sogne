@@ -94,6 +94,7 @@
       id: 'cartes', title: 'Les cartes en détail',
       html: `
       <p class="muted">Le jeu se compose de 5 catégories de cartes et de 3 jokers par paquet. Chaque carte contient une consigne à réaliser.</p>
+      <p class="muted">Sur le site, touche n'importe où sur une carte pour la fermer. Si la carte a un chrono, ce premier toucher le lance, puis un nouveau toucher à la fin la ferme.</p>
       <div class="detail defi"><h4>DÉFI</h4><p>Un défi à réaliser seul, en équipe ou tous ensemble. <span class="muted">Par exemple : un mini-jeu, un mime, un quiz, un challenge ou un exercice d'observation.</span></p></div>
       <div class="detail verite"><h4>VÉRITÉ</h4><p>Réponds franchement à la question posée (ou bois une gorgée !). Une vérité ne fait pas avancer Sonia.</p></div>
       <div class="detail duel"><h4>DUEL</h4><p>Affronte un autre joueur dans l'épreuve indiquée sur la carte. Le vainqueur fait avancer Sonia !</p></div>
