@@ -82,8 +82,8 @@ const LANGS = [
 
 // Cartes particulières, pour pouvoir tester toutes les fonctions : [pile, numéro] -> texte imposé / options
 const SPECIAL = {
-  'defi-3': { text: 'Yer shekh ma shieraki anni, khal ! Tu as 30 secondes.', latin: true },
-  'duel-5': { text: 'Skoros ñuhys iksan, valonqar ! Vous avez une minute.', latin: true },
+  'defi-3': { text: 'Yer shekh ma shieraki anni, khal !', secs: 30, lang: 'Dothraki' },
+  'duel-5': { text: 'Skoros ñuhys iksan, valonqar !', secs: 60, lang: 'Haut valyrien' },
   'gage-6': { secret: true },
 };
 
@@ -97,9 +97,9 @@ const SCRIPT = {
   'Aurebesh': { fx: 'aurebesh' },
   'Huttese': { fx: 'aurebesh' },
   'Klingon': { fx: 'klingon' },
-  'Dothraki': { fx: 'alienalpha', conv: plain },
-  'Haut valyrien': { fx: 'moonrunes', conv: (t) => plain(t).replace(/!/g, '.').replace(/['']/g, '').replace(/-/g, ' ') },
-  "Na'vi": { fx: 'alien', conv: plain },
+  'Dothraki': { fx: 'alienalpha', label: 'Martien', conv: plain },
+  'Haut valyrien': { fx: 'moonrunes', label: 'Runes lunaires', conv: (t) => plain(t).replace(/!/g, '.').replace(/['']/g, '').replace(/-/g, ' ') },
+  "Na'vi": { fx: 'alien', label: 'Martien', conv: plain },
 };
 // précisions : toujours en alphabet latin (langues sans écriture propre)
 const LATIN_LANGS = LANGS.filter(([n]) => !SCRIPT[n]);
@@ -108,7 +108,9 @@ function build(real) {
   const cards = [];
   real.piles.forEach((p, pi) => {
     for (let n = 1; n <= 10; n++) {
-      const li = (n - 1 + pi * 3) % LANGS.length;
+      const li0 = (n - 1 + pi * 3) % LANGS.length;
+      const spk = SPECIAL[`${p.id}-${n}`];
+      const li = spk && spk.secs ? LANGS.findIndex(([nm]) => nm === (spk.lang)) : li0;
       const [name, variants] = LANGS[li];
       const sp = SPECIAL[`${p.id}-${n}`] || {};
       const sc = sp.latin ? null : SCRIPT[name];
@@ -120,7 +122,8 @@ function build(real) {
         precisions: n % 3 === 0 && !sp.secret ? [LATIN_LANGS[(li + n) % LATIN_LANGS.length][1][1]] : [],
       };
       if (sc) card.fx = sc.fx;
-      card.lang = name;
+      card.lang = (sc && sc.label) || name;
+      if (sp.secs) card.secs = sp.secs;
       cards.push(card);
     }
   });

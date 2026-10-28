@@ -366,6 +366,7 @@
   // ---------- Chrono (durée détectée dans le texte de la carte) ----------
   function durationOf(card) {
     if (!card || card.secret || card.kind === 'joker' || !card.text || /hésitation/i.test(card.text)) return 0;
+    if (card.secs) return card.secs;
     const m = card.text.match(/(\d+)\s*secondes?/i);
     if (m) return +m[1];
     if (/\b(une|1)\s*minute\b/i.test(card.text)) return 60;
