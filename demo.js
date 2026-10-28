@@ -104,6 +104,11 @@ const SCRIPT = {
 // précisions : toujours en alphabet latin (langues sans écriture propre)
 const LATIN_LANGS = LANGS.filter(([n]) => !SCRIPT[n]);
 
+function PREC_LANGS(cur, k) {
+  const l = LATIN_LANGS.filter(([nm]) => nm !== cur);
+  return l[k % l.length][1][1];
+}
+
 function build(real) {
   const cards = [];
   real.piles.forEach((p, pi) => {
@@ -119,10 +124,10 @@ function build(real) {
       const card = {
         id: `demo-${p.id}-${String(n).padStart(2, '0')}`, pile: p.id, number: n, kind: 'card', secret: !!sp.secret, text,
         // une carte sur trois a une précision, elle aussi en langue inventée (alphabet latin)
-        precisions: n % 3 === 0 && !sp.secret ? [LATIN_LANGS[(li + n) % LATIN_LANGS.length][1][1]] : [],
+        precisions: n % 3 === 0 && !sp.secret ? [PREC_LANGS(name, li + n)] : [],
       };
       if (sc) card.fx = sc.fx;
-      card.lang = (sc && sc.label) || name;
+      card.lang = (sc && sc.label) || (name === 'Lorem ipsum' ? 'Faux latin' : name);
       if (sp.secs) card.secs = sp.secs;
       cards.push(card);
     }
