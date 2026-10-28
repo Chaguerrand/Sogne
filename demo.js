@@ -1,6 +1,6 @@
 'use strict';
 // Paquet de test : fausses cartes (langues inventées) servies à la place de cards.json tant que les cartes sont verrouillées.
-// Même structure que les vraies cartes (5 piles, jokers, mission secrète, chrono, précisions), mais aucun vrai texte.
+// Même structure que les vraies cartes (5 piles, mission secrète, chrono, précisions ; pas de jokers), mais aucun vrai texte.
 
 // Chaque langue : [court, moyen, long (> 80 caractères), très long (> 125 caractères)]
 const LANGS = [
@@ -99,8 +99,6 @@ function build(real) {
         precisions: [sp.note || `Langue de cette carte de test : ${name.toLowerCase()} (approximatif).`],
       });
     }
-    // les 3 jokers de chaque pile, comme dans le vrai jeu
-    for (const j of ['echange', 'collectif', 'aide']) cards.push({ id: `demo-${p.id}-joker-${j}`, pile: p.id, kind: 'joker', joker: j });
   });
   return { demo: true, piles: real.piles, jokers: real.jokers, rules: real.rules, cards };
 }

@@ -29,7 +29,7 @@ remet les piles à zéro. Avec la base, l'état (piles, verrou, infos, numéros)
 - **Numéros** : un clic distribue un numéro différent (1 à 16) à chaque téléphone connecté. Il s'affiche 10 secondes,
   puis chaque joueur peut le revoir 4 secondes avec un bouton. Le tour se termine quand vous rappuyez sur le bouton.
 - **Piles** : compteurs, remélange d'une pile ou de toutes, réinitialisation, et verrou des cartes. Verrouillé (par défaut), le site
-  est en **mode test** : le serveur envoie un paquet de fausses cartes (`demo.js`, langues inventées, 10 cartes par pile plus les jokers,
+  est en **mode test** : le serveur envoie un paquet de fausses cartes (`demo.js`, langues inventées, 10 cartes par pile, sans joker,
   qui tournent en boucle, tirage local sans effet sur les vraies piles) et les vrais textes ne quittent pas le serveur. Déverrouillé,
   les joueurs tirent dans les vraies piles.
 - **Infos pratiques** : adresse, code de la boîte à clés, wifi, notes. Modifiable en direct, sans redéployer.
