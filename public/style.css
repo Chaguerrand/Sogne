@@ -302,7 +302,7 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .precs { font-size: 5cqw; margin-top: 4.5cqw; max-height: 40%; }
 .joker-ico { width: 36cqw; height: 33cqw; }
 .jk-label { font-size: 9.2cqw; } .jk-kicker { font-size: 3.6cqw; } .jk-rule { font-size: 4.8cqw; }
-.hidden-mission svg { width: 23cqw; height: 23cqw; } .hidden-mission p { font-size: 4.2cqw; max-width: 70cqw; }
+.hidden-mission svg { width: 23cqw; height: 23cqw; } .hidden-mission p { font-size: 4.8cqw; max-width: 70cqw; }
 .joker-banner { font-size: 3.5cqw; }
 .face.back .bn { font-size: 10cqw; } .face.back .bs { font-size: 12cqw; }
 .face.back img { height: 36%; }
@@ -402,3 +402,7 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .adminlink a { font-size: 13px; color: var(--muted); text-decoration: none; border: 1.5px solid rgba(107,20,32,.25); border-radius: 999px; padding: 7px 14px; display: inline-block; }
 
 .alarmflash { position: fixed; inset: 0; z-index: 120; background: #ffd9e0; }
+
+.cbody .attrib { align-self: flex-end; font: 500 italic 14px/1.2 'Inter', sans-serif; color: var(--ink); opacity: .75; margin-top: -2px; }
+.mini .attrib { display: none; }
+@supports (font-size: 1cqw) { .cbody .attrib { font-size: 4.8cqw; } }

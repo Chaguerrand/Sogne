@@ -120,6 +120,7 @@ function build(real) {
         precisions: n % 3 === 0 && !sp.secret ? [LATIN_LANGS[(li + n) % LATIN_LANGS.length][1][1]] : [],
       };
       if (sc) card.fx = sc.fx;
+      card.lang = name;
       cards.push(card);
     }
   });
