@@ -95,6 +95,7 @@ const SCRIPT = {
   'Langue noire de Mordor': { fx: 'tengwar', conv: (t) => transcribe(t, { black: true }) },
   'Aurebesh': { fx: 'aurebesh' },
   'Huttese': { fx: 'aurebesh' },
+  'Klingon': { fx: 'klingon' },
 };
 // précisions : toujours en alphabet latin (langues sans écriture propre)
 const LATIN_LANGS = LANGS.filter(([n]) => !SCRIPT[n]);

@@ -103,15 +103,20 @@ h1, h2, h3, h4 { margin: 0; font-weight: 400; }
 
 /* Règles */
 @font-face { font-family: 'Alcarin Tengwar'; src: url(fonts/alcarin-tengwar.woff2) format('woff2'); font-display: swap; }
+@font-face { font-family: 'Kahless'; src: url(fonts/kahless.ttf) format('truetype'); font-display: swap; }
 @font-face { font-family: 'Aurebesh AF'; src: url(fonts/aurebesh-af-canon.otf) format('opentype'); font-display: swap; }
 .cbody .txt.fx-tengwar { font-family: 'Alcarin Tengwar', serif; font-weight: 400; }
 .cbody .txt.fx-aurebesh { font-family: 'Aurebesh AF', sans-serif; font-weight: 400; }
+.cbody .txt.fx-klingon { font-family: 'Kahless', sans-serif; font-weight: 400; }
 .cbody .txt.fx-tengwar { font-size: 9.4cqw; line-height: 1.4; }
 .cbody .txt.fx-tengwar.long { font-size: 7cqw; }
 .cbody .txt.fx-tengwar.xl { font-size: 6cqw; }
 .cbody .txt.fx-aurebesh { font-size: 7.4cqw; line-height: 1.35; }
 .cbody .txt.fx-aurebesh.long { font-size: 6.2cqw; }
 .cbody .txt.fx-aurebesh.xl { font-size: 5.3cqw; }
+.cbody .txt.fx-klingon { font-size: 7.4cqw; line-height: 1.35; }
+.cbody .txt.fx-klingon.long { font-size: 6cqw; }
+.cbody .txt.fx-klingon.xl { font-size: 5cqw; }
 .rules-intro { margin-bottom: 14px; }
 .rules-intro p { margin: 0 0 10px; }
 .acc { border: 2px solid var(--bordeaux); border-radius: 18px; background: #fff; margin-bottom: 10px; overflow: hidden; }
