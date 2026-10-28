@@ -120,7 +120,7 @@ function build(real) {
         precisions: [],
       };
       if (sc) card.fx = sc.fx;
-      card.lang = (sc && sc.label) || (name === 'Lorem ipsum' ? 'Faux latin' : name);
+      card.lang = (sc && sc.label) || (name === 'Lorem ipsum' ? 'Latin' : name);
       cards.push(card);
     }
   });
