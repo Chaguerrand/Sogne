@@ -54,3 +54,9 @@ Le texte historique est conservé dans le champ `source_text`.
 ## Sauvegarde des piles
 
 Sans `DATABASE_URL`, l'état est écrit dans `data/state.json` (perdu à chaque redémarrage sur Render gratuit). Avec `DATABASE_URL` (Postgres, URL interne de la base Render), l'état est restauré au démarrage. La page `/admin` indique le mode de sauvegarde actif.
+
+## Polices des cartes de test
+
+`public/fonts/alcarin-tengwar.woff2` (Alcarin Tengwar, Toshi Omagari, licence SIL OFL 1.1, voir `OFL-alcarin-tengwar.txt`) et
+`public/fonts/aurebesh-af-canon.otf` (Aurebesh AF, AurekFonts, gratuite pour tout usage). Elles ne servent que pour le mode test :
+`demo-tengwar.js` convertit du latin en Tengwar (transcription simplifiée), l'Aurebesh s'écrit directement avec la police.

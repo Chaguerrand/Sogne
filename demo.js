@@ -3,6 +3,8 @@
 // Même structure que les vraies cartes (5 piles, mission secrète, chrono, précisions ; pas de jokers), mais aucun vrai texte.
 
 // Chaque langue : [court, moyen, long (> 80 caractères), très long (> 125 caractères)]
+const { transcribe } = require('./demo-tengwar.js');
+
 const LANGS = [
   ['Sindarin', [
     'Mae govannen, mellon nin !',
@@ -80,10 +82,22 @@ const LANGS = [
 
 // Cartes particulières, pour pouvoir tester toutes les fonctions : [pile, numéro] -> texte imposé / options
 const SPECIAL = {
-  'defi-3': { text: 'Heghlu\'meH QaQ jajvam, Qapla\' ! Tu as 30 secondes.' },
-  'duel-5': { text: 'Mee tuta wompa, boska ! Vous avez une minute.' },
+  'defi-3': { text: 'Yer shekh ma shieraki anni, khal ! Tu as 30 secondes.', latin: true },
+  'duel-5': { text: 'Skoros ñuhys iksan, valonqar ! Vous avez une minute.', latin: true },
   'gage-6': { secret: true },
 };
+
+// Écriture réelle quand il en existe une avec une police libre : Tengwar (elfique, langue noire) et Aurebesh (aurebesh, huttese).
+// Les autres langues restent en alphabet latin.
+const SCRIPT = {
+  'Sindarin': { fx: 'tengwar', conv: (t) => transcribe(t, {}) },
+  'Quenya': { fx: 'tengwar', conv: (t) => transcribe(t, { mode: 'quenya' }) },
+  'Langue noire de Mordor': { fx: 'tengwar', conv: (t) => transcribe(t, { black: true }) },
+  'Aurebesh': { fx: 'aurebesh' },
+  'Huttese': { fx: 'aurebesh' },
+};
+// précisions : toujours en alphabet latin (langues sans écriture propre)
+const LATIN_LANGS = LANGS.filter(([n]) => !SCRIPT[n]);
 
 function build(real) {
   const cards = [];
@@ -92,11 +106,16 @@ function build(real) {
       const li = (n - 1 + pi * 3) % LANGS.length;
       const [name, variants] = LANGS[li];
       const sp = SPECIAL[`${p.id}-${n}`] || {};
-      cards.push({
-        id: `demo-${p.id}-${String(n).padStart(2, '0')}`, pile: p.id, number: n, kind: 'card', secret: !!sp.secret,
-        text: sp.text || variants[(n - 1 + pi) % 4],
-        precisions: n % 3 === 0 && !sp.secret ? [LANGS[(li + 5) % LANGS.length][1][1]] : [], // une carte sur trois a une précision, elle aussi en langue inventée
-      });
+      const sc = sp.latin ? null : SCRIPT[name];
+      let text = sp.text || variants[(n - 1 + pi) % 4];
+      if (sc && sc.conv) text = sc.conv(text);
+      const card = {
+        id: `demo-${p.id}-${String(n).padStart(2, '0')}`, pile: p.id, number: n, kind: 'card', secret: !!sp.secret, text,
+        // une carte sur trois a une précision, elle aussi en langue inventée (alphabet latin)
+        precisions: n % 3 === 0 && !sp.secret ? [LATIN_LANGS[(li + n) % LATIN_LANGS.length][1][1]] : [],
+      };
+      if (sc) card.fx = sc.fx;
+      cards.push(card);
     }
   });
   return { demo: true, piles: real.piles, jokers: real.jokers, rules: real.rules, cards };
