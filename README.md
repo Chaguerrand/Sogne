@@ -58,5 +58,5 @@ Sans `DATABASE_URL`, l'état est écrit dans `data/state.json` (perdu à chaque 
 ## Polices des cartes de test
 
 `public/fonts/alcarin-tengwar.woff2` (Alcarin Tengwar, Toshi Omagari, licence SIL OFL 1.1, voir `OFL-alcarin-tengwar.txt`) et
-`public/fonts/aurebesh-af-canon.otf` (Aurebesh AF, AurekFonts, gratuite pour tout usage). `public/fonts/kahless.ttf` (Kahless, Daniel Zadorozny, Iconian Fonts) pour le klingon. Elles ne servent que pour le mode test :
-`demo-tengwar.js` convertit du latin en Tengwar (transcription simplifiée), l'Aurebesh et le klingon s'écrivent directement avec la police.
+`public/fonts/aurebesh-af-canon.otf` (Aurebesh AF, AurekFonts, gratuite pour tout usage). `public/fonts/kahless.ttf` (Kahless, Daniel Zadorozny, Iconian Fonts) pour le klingon, `alien.ttf`, `alien-alphabet.otf` et `moon-runes.ttf` pour le dothraki, le na'vi et le haut valyrien. Elles ne servent que pour le mode test :
+`demo-tengwar.js` convertit du latin en Tengwar (transcription simplifiée), l'Aurebesh, le klingon et les trois alphabets ci-dessus s'écrivent directement avec la police.

@@ -87,6 +87,7 @@ const SPECIAL = {
   'gage-6': { secret: true },
 };
 
+const plain = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 // Écriture réelle quand il en existe une avec une police libre : Tengwar (elfique, langue noire) et Aurebesh (aurebesh, huttese).
 // Les autres langues restent en alphabet latin.
 const SCRIPT = {
@@ -96,6 +97,9 @@ const SCRIPT = {
   'Aurebesh': { fx: 'aurebesh' },
   'Huttese': { fx: 'aurebesh' },
   'Klingon': { fx: 'klingon' },
+  'Dothraki': { fx: 'alienalpha', conv: plain },
+  'Haut valyrien': { fx: 'moonrunes', conv: (t) => plain(t).replace(/!/g, '.').replace(/['']/g, '').replace(/-/g, ' ') },
+  "Na'vi": { fx: 'alien', conv: plain },
 };
 // précisions : toujours en alphabet latin (langues sans écriture propre)
 const LATIN_LANGS = LANGS.filter(([n]) => !SCRIPT[n]);
