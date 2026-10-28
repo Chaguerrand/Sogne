@@ -62,17 +62,15 @@
         S.data = d; S.demo = !!d.demo; S.byId = new Map(d.cards.map((c) => [c.id, c]));
         if (S.demo) { S.demoEngine = Engine.newState(d); S.counts = Engine.counts(S.demoEngine); S.history = []; S.active = null; }
         else { S.counts = S.realCounts; S.history = ls.get('history', []); S.active = ls.get('active', null); }
-        $('#demonote').classList.toggle('hidden', !S.demo);
         renderPiles(); renderRecent(); renderDock();
         return true;
       } catch (e) { return false; } finally { loading = null; }
     })();
     return loading;
   }
-  async function setLocked(v, quiet) {
-    const was = S.locked; S.locked = !!v;
+  async function setLocked(v) {
+    S.locked = !!v;
     if (S.data && S.locked !== S.demo) { if (layer.firstChild) S.syncAfter = true; else await loadData(); }
-    if (!quiet && was !== undefined && was !== S.locked) toast(S.locked ? 'Retour au mode test : cartes factices.' : 'Les vraies cartes sont débloquées : à vous de jouer !');
   }
   function setCounts(c) { S.realCounts = c; if (!S.demo) { S.counts = c; renderPileCounts(); } }
   // Vérifie auprès du serveur si les vraies cartes sont déverrouillées (utile quand le téléphone s'est endormi et a raté l'info en direct).
@@ -467,7 +465,7 @@
     const id = await drawCard(pileId, false);
     const card = S.byId.get(id);
     if (!card) { setTop(o, 'Erreur de tirage'); setActions(o, [{ label: 'Fermer', run: closeLayer }]); return; }
-    setTop(o, ` a tiré dans ${PILE_LABEL[pileId]}${S.demo ? ' (test)' : ''}`, S.name || 'Joueur');
+    setTop(o, ` a tiré dans ${PILE_LABEL[pileId]}`, S.name || 'Joueur');
     await revealCard(o, card);
     if (card.kind === 'joker') return jokerFlow(o, card);
     afterResolved(card); finalActions(o, card);

@@ -80,10 +80,9 @@ const LANGS = [
 
 // Cartes particulières, pour pouvoir tester toutes les fonctions : [pile, numéro] -> texte imposé / options
 const SPECIAL = {
-  'defi-3': { text: 'Heghlu\'meH QaQ jajvam, Qapla\' ! Tu as 30 secondes.', note: 'Carte de test du chrono (30 secondes).' },
-  'duel-5': { text: 'Mee tuta wompa, boska ! Vous avez une minute.', note: 'Carte de test du chrono (1 minute).' },
-  'gage-6': { secret: true, note: 'Carte de test d\'une mission secrète.' },
-  'gage-2': { note: 'Carte de test : un gage reste affiché en bas de l\'écran jusqu\'à ce qu\'on le termine.' },
+  'defi-3': { text: 'Heghlu\'meH QaQ jajvam, Qapla\' ! Tu as 30 secondes.' },
+  'duel-5': { text: 'Mee tuta wompa, boska ! Vous avez une minute.' },
+  'gage-6': { secret: true },
 };
 
 function build(real) {
@@ -96,7 +95,7 @@ function build(real) {
       cards.push({
         id: `demo-${p.id}-${String(n).padStart(2, '0')}`, pile: p.id, number: n, kind: 'card', secret: !!sp.secret,
         text: sp.text || variants[(n - 1 + pi) % 4],
-        precisions: [sp.note || `Langue de cette carte de test : ${name.toLowerCase()} (approximatif).`],
+        precisions: n % 3 === 0 && !sp.secret ? [LANGS[(li + 5) % LANGS.length][1][1]] : [], // une carte sur trois a une précision, elle aussi en langue inventée
       });
     }
   });
