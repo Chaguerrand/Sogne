@@ -18,7 +18,7 @@
   const S = {
     device: ls.get('device', null) || uid(),
     name: ls.get('name', ''),
-    data: null, byId: new Map(), counts: {}, online: 0, connected: false,
+    data: null, byId: new Map(), counts: {}, realCounts: {}, demo: false, demoEngine: null, online: 0, connected: false,
     info: ls.get('info', null), nums: { active: false, round: 0, number: null, assigned: false },
     active: ls.get('active', null),      // { id, hidden } : gage ou mission en cours
     history: ls.get('history', []),      // [{ id, t }]
@@ -51,29 +51,52 @@
   function saveLocal() { ls.set('localEngine', S.local); }
   function setOffline(v) { $('#offline').classList.toggle('hidden', !v); }
 
-  function setLocked(v, quiet) {
-    const was = S.locked; S.locked = !!v;
-    $$('#piles .pile').forEach((b) => b.classList.toggle('locked', S.locked));
-    if (!quiet && was !== undefined && was !== S.locked) toast(S.locked ? 'Les cartes sont verrouillées.' : 'Les cartes sont débloquées : à vous de jouer !');
+  // Tant que l'organisateur n'a pas déverrouillé, le serveur envoie un paquet de fausses cartes (mode test) à la place des vraies :
+  // on recharge les données dès que l'état change.
+  let loading = null;
+  function loadData() {
+    if (loading) return loading;
+    loading = (async () => {
+      try {
+        const d = await (await fetch('cards.json', { cache: 'no-store' })).json();
+        S.data = d; S.demo = !!d.demo; S.byId = new Map(d.cards.map((c) => [c.id, c]));
+        if (S.demo) { S.demoEngine = Engine.newState(d); S.counts = Engine.counts(S.demoEngine); S.history = []; S.active = null; }
+        else { S.counts = S.realCounts; S.history = ls.get('history', []); S.active = ls.get('active', null); }
+        $('#demonote').classList.toggle('hidden', !S.demo);
+        renderPiles(); renderRecent(); renderDock();
+        return true;
+      } catch (e) { return false; } finally { loading = null; }
+    })();
+    return loading;
   }
-
-  // Vérifie auprès du serveur si les cartes sont déverrouillées (utile quand le téléphone s'est endormi et a raté l'info en direct).
+  async function setLocked(v, quiet) {
+    const was = S.locked; S.locked = !!v;
+    if (S.data && S.locked !== S.demo) { if (layer.firstChild) S.syncAfter = true; else await loadData(); }
+    if (!quiet && was !== undefined && was !== S.locked) toast(S.locked ? 'Retour au mode test : cartes factices.' : 'Les vraies cartes sont débloquées : à vous de jouer !');
+  }
+  function setCounts(c) { S.realCounts = c; if (!S.demo) { S.counts = c; renderPileCounts(); } }
+  // Vérifie auprès du serveur si les vraies cartes sont déverrouillées (utile quand le téléphone s'est endormi et a raté l'info en direct).
   async function refreshLock() {
     try {
-      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 4000);
+      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 3000);
       const r = await fetch('/api/status', { cache: 'no-store', signal: ctrl.signal }); clearTimeout(t);
-      const d = await r.json(); S.counts = d.counts; renderPileCounts(); setLocked(d.locked !== false, true);
+      const d = await r.json(); setCounts(d.counts); await setLocked(d.locked !== false, true);
     } catch (e) { /* hors ligne : on garde l'état connu */ }
-    return S.locked === false;
   }
 
   async function drawCard(pile, classic) {
+    if (S.demo) { // mode test : tirage local dans le paquet de fausses cartes, qui tourne en boucle, sans toucher au serveur
+      const st = S.demoEngine || (S.demoEngine = Engine.newState(S.data));
+      const r = classic ? Engine.drawClassic(st, S.data, pile) : Engine.draw(st, S.data, pile);
+      S.counts = Engine.counts(st); renderPileCounts(); await wait(200);
+      return r.id;
+    }
     try {
       const r = await post(classic ? '/api/drawClassic' : '/api/draw', { pile });
-      S.counts = r.counts; renderPileCounts(); setOffline(false);
+      setCounts(r.counts); setOffline(false);
       return r.id;
     } catch (e) {
-      if (e.status === 403) { setLocked(true); return null; }
+      if (e.status === 403) { S.locked = true; await loadData(); return S.demo ? drawCard(pile, classic) : null; }
       setOffline(true);
       const st = localEngine();
       const r = classic ? Engine.drawClassic(st, S.data, pile) : Engine.draw(st, S.data, pile);
@@ -82,7 +105,8 @@
     }
   }
   async function putBack(pile, id) {
-    try { const r = await post('/api/putback', { pile, id }); S.counts = r.counts; renderPileCounts(); setOffline(false); }
+    if (S.demo) { Engine.putBack(S.demoEngine, pile, id); S.counts = Engine.counts(S.demoEngine); renderPileCounts(); return; }
+    try { const r = await post('/api/putback', { pile, id }); setCounts(r.counts); setOffline(false); }
     catch (e) { if (e.status === 403) return; setOffline(true); const st = localEngine(); Engine.putBack(st, pile, id); S.counts = Engine.counts(st); saveLocal(); renderPileCounts(); }
   }
 
@@ -91,13 +115,14 @@
   function connect() {
     if (es) es.close();
     es = new EventSource(`/api/events?device=${encodeURIComponent(S.device)}&name=${encodeURIComponent(S.name || '')}`);
-    es.addEventListener('snapshot', (e) => {
+    es.addEventListener('snapshot', async (e) => {
       const d = JSON.parse(e.data); S.connected = true; setOffline(false);
-      S.counts = d.counts; S.info = d.info; ls.set('info', d.info); S.online = d.online; setLocked(d.locked !== false, true);
-      renderPileCounts(); renderHouse(); renderOnline(); handleNumbers(d.numbers, true);
+      S.info = d.info; ls.set('info', d.info); S.online = d.online;
+      renderHouse(); renderOnline(); handleNumbers(d.numbers, true);
+      await setLocked(d.locked !== false, true); setCounts(d.counts);
     });
     es.addEventListener('lock', (e) => setLocked(JSON.parse(e.data).locked));
-    es.addEventListener('counts', (e) => { S.counts = JSON.parse(e.data).counts; renderPileCounts(); });
+    es.addEventListener('counts', (e) => setCounts(JSON.parse(e.data).counts));
     es.addEventListener('online', (e) => { S.online = JSON.parse(e.data).online; renderOnline(); });
     es.addEventListener('info', (e) => { S.info = JSON.parse(e.data).info; ls.set('info', S.info); renderHouse(); });
     es.addEventListener('numbers', (e) => handleNumbers(JSON.parse(e.data), false));
@@ -151,13 +176,9 @@
     const box = $('#piles'); box.innerHTML = '';
     S.data.piles.forEach((p, i) => {
       const b = el(`<button class="pile ${p.id} ${i === 4 ? 'wide' : ''}" type="button" data-pile="${p.id}" aria-label="Tirer une carte ${PILE_LABEL[p.id]}">
-        <div class="stack"><div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"><img class="emb" alt="" src="img/emb_${p.id}.webp"><div class="name">${PILE_LABEL[p.id]}</div></div><span class="lockbadge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2.4" fill="currentColor" stroke="none"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div>
+        <div class="stack"><div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"><img class="emb" alt="" src="img/emb_${p.id}.webp"><div class="name">${PILE_LABEL[p.id]}</div></div></div>
         <div class="count" data-count="${p.id}"></div></button>`);
-      b.classList.toggle('locked', S.locked !== false);
-      b.addEventListener('click', async () => {
-        if (S.locked !== false && !(await refreshLock())) { toast('Les cartes seront débloquées par l\'organisateur.'); return; }
-        openDraw(p.id);
-      });
+      b.addEventListener('click', async () => { if (S.demo) await refreshLock(); openDraw(p.id); });
       box.appendChild(b);
     });
     renderPileCounts();
@@ -182,15 +203,17 @@
   }
   function pushHistory(id) {
     S.history = [{ id, t: Date.now() }, ...S.history.filter((h) => h.id !== id)].slice(0, 12);
-    ls.set('history', S.history); renderRecent();
+    if (!S.demo) ls.set('history', S.history);
+    renderRecent();
   }
 
   // ---------- Gage / mission en cours ----------
   function setActive(card) {
     S.active = (card && card.pile === 'gage') ? { id: card.id, hidden: !!card.secret } : S.active;
-    ls.set('active', S.active); renderDock();
+    if (!S.demo) ls.set('active', S.active);
+    renderDock();
   }
-  function clearActive() { S.active = null; ls.set('active', null); renderDock(); }
+  function clearActive() { S.active = null; if (!S.demo) ls.set('active', null); renderDock(); }
   function renderDock() {
     const d = $('#dock');
     if (!S.active) { d.classList.add('hidden'); d.innerHTML = ''; return; }
@@ -294,6 +317,7 @@
     const clone = ok ? f.cloneNode(true) : null;
     layer.innerHTML = ''; document.body.style.overflow = '';
     if (clone) tearCard(clone, r);
+    if (S.syncAfter) { S.syncAfter = false; setLocked(S.locked, true); }
   }
   window.__tear = (i) => { const f = layer.querySelector('.face.front'); const r = f.getBoundingClientRect(); const c = f.cloneNode(true); layer.innerHTML = ''; tearCard(c, r, i); };
   function burst() {
@@ -443,7 +467,7 @@
     const id = await drawCard(pileId, false);
     const card = S.byId.get(id);
     if (!card) { setTop(o, 'Erreur de tirage'); setActions(o, [{ label: 'Fermer', run: closeLayer }]); return; }
-    setTop(o, ` a tiré dans ${PILE_LABEL[pileId]}`, S.name || 'Joueur');
+    setTop(o, ` a tiré dans ${PILE_LABEL[pileId]}${S.demo ? ' (test)' : ''}`, S.name || 'Joueur');
     await revealCard(o, card);
     if (card.kind === 'joker') return jokerFlow(o, card);
     afterResolved(card); finalActions(o, card);
@@ -631,10 +655,8 @@
 
   // ---------- Démarrage ----------
   async function init() {
-    try { S.data = await (await fetch('cards.json')).json(); }
-    catch (e) { $('#piles').innerHTML = '<p>Impossible de charger les cartes. Recharge la page.</p>'; return; }
-    S.data.cards.forEach((c) => S.byId.set(c.id, c));
-    renderPiles(); renderRules(); renderProg(); renderHouse(); renderRecent(); renderDock(); renderHello(); renderOnline();
+    if (!(await loadData())) { $('#piles').innerHTML = '<p>Impossible de charger les cartes. Recharge la page.</p>'; return; }
+    renderRules(); renderProg(); renderHouse(); renderHello(); renderOnline();
     showTab('prog');
     connect();
     if (!ls.get('nameAsked', false)) setTimeout(askName, 700);

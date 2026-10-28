@@ -53,7 +53,7 @@
       <h3>Piles de cartes</h3>
       <p class="state" id="persist"></p>
       <p class="state" id="lockstate"></p>
-      <button class="bigbtn" id="lockbtn" type="button">Déverrouiller les cartes</button>
+      <button class="bigbtn" id="lockbtn" type="button">Déverrouiller les vraies cartes</button>
       <div id="piles"></div>
       <div class="btnrow"><button class="btn" id="reshuffle-all" type="button">Remélanger toutes les piles</button><button class="btn" id="reset" type="button">Tout réinitialiser</button></div>
     </div>
@@ -115,8 +115,8 @@
 
   function render(s) {
     renderInfo(s.info);
-    $('#lockstate').innerHTML = s.locked ? '<b>Cartes verrouillées</b> : les joueurs voient les piles avec un cadenas mais ne peuvent pas tirer.' : '<b>Cartes déverrouillées</b> : les joueurs peuvent tirer.';
-    $('#lockbtn').textContent = s.locked ? 'Déverrouiller les cartes' : 'Verrouiller les cartes';
+    $('#lockstate').innerHTML = s.locked ? '<b>Mode test</b> : les joueurs tirent des cartes factices (langues inventées), sans effet sur les vraies piles.' : '<b>Vraies cartes déverrouillées</b> : les joueurs tirent dans les vraies piles.';
+    $('#lockbtn').textContent = s.locked ? 'Déverrouiller les vraies cartes' : 'Revenir au mode test';
     $('#lockbtn').classList.toggle('stop', !s.locked); $('#lockbtn').dataset.locked = s.locked ? '1' : '';
     if (s.persist) $('#persist').textContent = s.persist.mode === 'db' ? (s.persist.ok ? 'Sauvegarde : base de données OK (les piles survivent à un redémarrage).' : 'Sauvegarde : ERREUR base de données (' + s.persist.error + ').') : 'Sauvegarde : fichier local seulement (perdue si Render redémarre).';
     const on = s.numbers.active;

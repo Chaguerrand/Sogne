@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const Engine = require('./public/engine.js');
+const Demo = require('./demo.js');
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_PIN = process.env.ADMIN_PIN || '';
@@ -234,17 +235,21 @@ async function api(req, res, url) {
 // Fichiers statiques : lus une seule fois, compressés en gzip (texte), avec ETag pour que les téléphones n'aient rien à retélécharger si rien n'a changé.
 const zlib = require('zlib');
 const fileCache = new Map();
+function makeEntry(buf, ext) {
+  const text = /^\.(html|js|css|json|svg|webmanifest|txt)$/.test(ext);
+  return { buf, ext, etag: '"' + crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16) + '"', gz: text && buf.length > 600 ? zlib.gzipSync(buf, { level: 9 }) : null };
+}
 function loadFile(file) {
   let e = fileCache.get(file);
   if (e) return e;
   let buf;
   try { buf = fs.readFileSync(file); } catch (err) { return null; }
-  const ext = path.extname(file);
-  const text = /^\.(html|js|css|json|svg|webmanifest|txt)$/.test(ext);
-  e = { buf, ext, etag: '"' + crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16) + '"', gz: text && buf.length > 600 ? zlib.gzipSync(buf, { level: 9 }) : null };
+  e = makeEntry(buf, path.extname(file));
   fileCache.set(file, e);
   return e;
 }
+// Tant que les cartes sont verrouillées, /cards.json renvoie le paquet de test (fausses cartes) : les vrais textes ne sortent pas du serveur.
+const DEMO_ENTRY = makeEntry(Buffer.from(JSON.stringify(Demo.build(DATA))), '.json');
 function serveStatic(req, res, url) {
   let rel;
   try { rel = decodeURIComponent(url.pathname); } catch (err) { return send(res, 400, 'bad request', { 'Content-Type': 'text/plain' }); }
@@ -253,7 +258,7 @@ function serveStatic(req, res, url) {
   if (rel === '/healthz') return send(res, 200, 'ok', { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' });
   const file = path.normalize(path.join(PUBLIC, rel));
   if (!file.startsWith(PUBLIC + path.sep)) return send(res, 403, 'forbidden', { 'Content-Type': 'text/plain' });
-  const e = loadFile(file);
+  const e = rel === '/cards.json' && state.locked !== false ? DEMO_ENTRY : loadFile(file);
   if (!e) return send(res, 404, 'Introuvable', { 'Content-Type': 'text/plain; charset=utf-8' });
   const long = e.ext === '.woff2' || e.ext === '.webp' || e.ext === '.png';
   const headers = { 'Content-Type': MIME[e.ext] || 'application/octet-stream', 'Cache-Control': long ? 'public, max-age=604800' : 'no-cache', ETag: e.etag, Vary: 'Accept-Encoding' };

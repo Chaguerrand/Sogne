@@ -102,6 +102,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 400; }
 .nav button.on span { background: var(--stripe); border-radius: 6px; padding: 0 6px; }
 
 /* Règles */
+.demonote { background: var(--yellow); border-radius: 14px; padding: 10px 14px; font-size: 13.5px; line-height: 1.4; margin: 0 0 14px; text-align: left; }
 .rules-intro { margin-bottom: 14px; }
 .rules-intro p { margin: 0 0 10px; }
 .acc { border: 2px solid var(--bordeaux); border-radius: 18px; background: #fff; margin-bottom: 10px; overflow: hidden; }
@@ -370,10 +371,6 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 .numrow { flex-direction: column; gap: 5px; margin: 14px 0; }
 .numrow .numchip { max-width: none; min-width: 0; align-self: flex-start; padding: 4px 10px; }
 
-/* Verrou des piles : l'aspect ne change pas, seul un petit cadenas apparaît */
-.pile .lockbadge { display: none; position: absolute; top: -9px; right: -7px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; background: var(--bordeaux); color: #fff; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(107,20,32,.35); align-items: center; justify-content: center; }
-.pile .lockbadge svg { width: 18px; height: 18px; }
-.pile.locked .lockbadge { display: flex; }
 
 .adminlink { text-align: center; margin: 26px 0 4px; }
 .adminlink a { font-size: 13px; color: var(--muted); text-decoration: none; border: 1.5px solid rgba(107,20,32,.25); border-radius: 999px; padding: 7px 14px; display: inline-block; }
