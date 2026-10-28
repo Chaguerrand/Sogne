@@ -17,7 +17,10 @@ const DATA = JSON.parse(fs.readFileSync(path.join(PUBLIC, 'cards.json'), 'utf8')
 const CARD_BY_ID = new Map(DATA.cards.map((c) => [c.id, c]));
 
 const BASE_INFO = {
-  address: '', arrival: '', departure: '', accessFoot: '', accessCar: '', keyCode: '', wifiName: '', wifiPass: '', notes: '',
+  address: '', arrival: '', departure: '', notes: '',
+  accessFoot: 'Portail blanc en bois côté rue. Poussez la porte de gauche (elle n\'est pas fermée). Juste derrière se trouve la boîte à clés. Clé de la maison : remonter la poignée vers le haut au maximum, puis ouvrir. Même manipulation pour fermer.',
+  accessCar: 'Un bip est à disposition pour le portail en acier blanc (entrée voitures). Ce portail est de l\'autre côté de la maison, côté église : première à droite quand le portail en bois blanc est à votre droite (voir photos de l\'annonce). Le bouton d\'ouverture et de fermeture est en haut à droite sur le bip. Ne jamais utiliser le portail en bois pour faire entrer des véhicules.',
+  keyCode: '2704', wifiName: 'Les Charmilles01', wifiPass: 'FriendsFoodFamily@60420',
 };
 // Les infos de la maison (adresse, accès...) ne sont pas dans le dépôt : elles viennent de la variable d'environnement INFO_JSON,
 // puis peuvent être modifiées en direct depuis /admin.
