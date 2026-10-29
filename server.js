@@ -152,6 +152,11 @@ async function api(req, res, url) {
     const prev = clients.get(device);
     if (prev) { try { prev.res.end(); } catch (e) { /* ignore */ } }
     clients.set(device, { res, name, since: Date.now() });
+    // Tour de numéros en cours : un arrivant tardif reçoit le numéro suivant (max 16)
+    if (state.numbers.active && !(device in state.numbers.assigned)) {
+      const next = Math.max(0, ...Object.values(state.numbers.assigned)) + 1;
+      if (next <= 16) { state.numbers.assigned[device] = next; save(); }
+    }
     sse(res, 'snapshot', snapshotFor(device));
     broadcast('online', { online: clients.size });
     req.on('close', () => { if (clients.get(device) && clients.get(device).res === res) { clients.delete(device); broadcast('online', { online: clients.size }); } });
