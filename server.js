@@ -221,7 +221,7 @@ async function api(req, res, url) {
     }
     if (p === '/api/admin/numbers/start') {
       const ids = Engine.shuffle([...clients.keys()]);
-      const nums = Engine.shuffle(Array.from({ length: 16 }, (_, i) => i + 1));
+      const nums = Engine.shuffle(Array.from({ length: Math.min(ids.length, 16) }, (_, i) => i + 1));
       const assigned = {};
       ids.slice(0, 16).forEach((id, i) => { assigned[id] = nums[i]; });
       state.numbers = { active: true, round: state.numbers.round + 1, assigned };

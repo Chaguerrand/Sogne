@@ -257,7 +257,7 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 
 /* Numéro */
 .numov { position: fixed; inset: 0; z-index: 70; background: var(--bordeaux); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; }
-.numov .k { font-size: 14px; letter-spacing: .18em; text-transform: uppercase; }
+.numov .k { font-size: 22px; line-height: 1.3; margin: 0 8px 4px; }
 .numov .n { font: 400 clamp(150px, 52vw, 260px)/1 'Rozha', serif; }
 .numov .bar { width: min(70vw, 280px); height: 8px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; margin-top: 14px; }
 .numov .bar i { display: block; height: 100%; background: #fff; width: 100%; transform-origin: left; }

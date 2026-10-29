@@ -589,7 +589,7 @@
   function hideNumber() { clearTimeout(numTimer); const n = $('.numov'); if (n) n.remove(); }
   function showNumber(ms) {
     hideNumber(); if (S.nums.number == null) return;
-    const n = el(`<div class="numov"><div class="k">Ton numéro</div><div class="n">${S.nums.number}</div><div class="bar"><i></i></div><small>Touche l'écran pour le cacher</small></div>`);
+    const n = el(`<div class="numov"><div class="k">Hello ${esc(S.name || '')}, ton numéro est le suivant :</div><div class="n">${S.nums.number}</div><div class="bar"><i></i></div><small>Touche l'écran pour le cacher</small></div>`);
     document.body.appendChild(n);
     const bar = $('.bar i', n); bar.style.transition = `transform ${ms}ms linear`;
     requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; }));
