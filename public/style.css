@@ -409,7 +409,7 @@ mark.m-verite { background: var(--verite); } mark.m-defi { background: var(--def
 
 .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .gallery .gal { padding: 0; border: 2px solid rgba(107,20,32,.25); border-radius: 12px; overflow: hidden; background: #fff; cursor: zoom-in; line-height: 0; }
-.gallery .gal:last-child { grid-column: 1 / -1; }
+.gallery .gal:first-child { grid-column: 1 / -1; }
 .gallery .gal img { width: 100%; height: auto; display: block; }
 .gallery { align-items: start; }
 .lightbox { position: fixed; inset: 0; z-index: 90; background: rgba(20,8,10,.92); display: flex; align-items: center; justify-content: center; }
