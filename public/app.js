@@ -655,6 +655,14 @@
     $$('[data-photo]', $('#house')).forEach((b) => b.addEventListener('click', () => openPhoto(b.dataset.photo)));
   }
 
+  // ---------- Photos ----------
+  function renderPhotos() {
+    const P = window.PHOTOS || { view: '', people: [] };
+    $('#photos').innerHTML = `
+      <div class="info"><h4>Voir les photos de tout le monde</h4><p class="muted">Un dossier par personne dans Dropbox : ouvre-le, choisis les photos que tu veux et télécharge-les.</p><div class="btnrow"><a class="btn small primary" href="${esc(P.view)}" target="_blank" rel="noopener">Ouvrir le dossier</a></div></div>
+      <div class="info"><h4>Participants</h4>${P.people.map(([n, u]) => `<details class="person"><summary>${esc(n)}</summary><div class="btnrow"><a class="btn small primary" href="${esc(u)}" target="_blank" rel="noopener">Déposer mes photos et vidéos</a><a class="btn small" href="${esc(P.view)}" target="_blank" rel="noopener">Voir et télécharger</a></div></details>`).join('')}</div>`;
+  }
+
   // ---------- Navigation, prénom ----------
   function showTab(t) {
     $$('.view').forEach((v) => v.classList.toggle('hidden', v.id !== 'view-' + t));
@@ -683,7 +691,7 @@
   // ---------- Démarrage ----------
   async function init() {
     if (!(await loadData())) { $('#piles').innerHTML = '<p>Impossible de charger les cartes. Recharge la page.</p>'; return; }
-    renderRules(); renderProg(); renderHouse(); renderHello(); renderOnline();
+    renderRules(); renderProg(); renderHouse(); renderPhotos(); renderHello(); renderOnline();
     showTab('prog');
     connect();
     if (!ls.get('nameAsked', false)) setTimeout(askName, 700);

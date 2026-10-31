@@ -73,6 +73,15 @@
       <div id="house"></div>
     </div>
   </section>
+
+  <!-- PHOTOS -->
+  <section id="view-photos" class="view hidden">
+    <div class="frame">
+      <h2>Photos et vidéos</h2>
+      <p class="sub">Souvenirs du week-end</p>
+      <div id="photos"></div>
+    </div>
+  </section>
 </main>
 
 <div class="dock hidden" id="dock"></div>
@@ -83,12 +92,14 @@
   <button data-tab="cards" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="13" height="17" rx="2.5"/><path d="M3 7v12a2 2 0 0 0 2 2h9" stroke-linecap="round"/></svg><span>Cartes</span></button>
   <button data-tab="rules" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1.500V19c3-.5 6 0 8 1.500 2-1.500 5-2 8-1.500V4.500C17 4 14 4.500 12 6z"/><path d="M12 6v14.500"/></svg><span>Règles</span></button>
   <button data-tab="house" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3.500 11 12 4l8.500 7M6 9.500V20h12V9.500"/><path d="M10 20v-5.500h4V20"/></svg><span>Maison</span></button>
+<button data-tab="photos" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l1.500-2.500h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.500"/></svg><span>Photos</span></button>
 </nav>
 
 <div id="layer"></div>
 
 <script src="engine.js"></script>
 <script src="rules.js"></script>
+<script src="photos.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
